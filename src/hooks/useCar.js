@@ -92,7 +92,21 @@ export const useCar = () => {
          } finally {
             setLoading(false)
          }
-    })
+    }, [apiUrls.allCars, getHeaders]);
+
+    useEffect( ()=> {
+        getCars();
+    }, [getCars]);
+
+    return {
+        cars,
+        loading,
+        error,
+        createCar,
+        updateCar,
+        deleteCar,
+        getCars
+    }
     
 
 }
