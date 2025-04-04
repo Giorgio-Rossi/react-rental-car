@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const isLoggedIn = () => {
-        return !!token; // converto in booleano e verifico il valore
+        return !!token; 
     }
 
     const getUserType = () => {
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
 
     const refreshToken = async () => {
         try {
-            const rsponde = await axios.post(`${apiUrl}/auth/refresh`, {});
+            const response = await axios.post(`${apiUrl}/auth/refresh`, {});
             const { token } = response.data;
             setToken(token)
             localStorage.setItem('auth_token', token);

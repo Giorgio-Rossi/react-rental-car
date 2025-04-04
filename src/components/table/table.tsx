@@ -2,6 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { TableConfig, ColumnConfig, OrderBy } from './table.types';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
+import './table.css';
+
+
 interface TableProps<T> {
     config: TableConfig<T>;
     data: T[];
@@ -88,8 +91,8 @@ export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableP
         setCurrentPage(page);
     };
 
-    const getPageNumbers = () => {
-        const pages = [];
+    const getPageNumbers = (): number[] => {
+        const pages: number[] = [];
         const maxVisible = 5;
         let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
         let end = Math.min(totalPages, start + maxVisible - 1);
