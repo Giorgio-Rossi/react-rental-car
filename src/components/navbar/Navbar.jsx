@@ -3,17 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../button/Button';
 
-interface NavButton {
-  label: string;
-  action: () => void;
-}
-
-interface NavbarProps {
-  buttons?: NavButton[];
-  username?: string;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ buttons = [], username }) => {
+const Navbar = ({ buttons = [], username }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 

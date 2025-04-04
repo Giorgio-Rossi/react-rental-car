@@ -1,20 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { TableConfig, ColumnConfig, OrderBy } from './table.types';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
 import './table.css';
 
-
-interface TableProps<T> {
-    config: TableConfig<T>;
-    data: T[];
-    onOrderChange?: (orderBy: OrderBy) => void;
-    onFilterChange?: (key: string, value: string) => void;
-}
-
-export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableProps<T>) {
-    const [filters, setFilters] = useState<Record<string, string>>({});
-    const [orderBy, setOrderBy] = useState<OrderBy | undefined>(config.currentByDefault);
+export function Table({ config, data, onOrderChange, onFilterChange }) {
+    const [filters, setFilters] = useState({});
+    const [orderBy, setOrderBy] = useState(config.currentByDefault);
     const [currentPage, setCurrentPage] = useState(config.pagination.currentPage);
     const itemsPerPage = config.pagination.itemsPerPage;
 
@@ -25,7 +16,7 @@ export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableP
             result = result.filter(row => {
                 return Object.entries(filters).every(([key, value]) => {
                     if (!value) return true;
-                    const cellValue = String(row[key as keyof T]).toLowerCase();
+                    const cellValue = String(row[key]).toLowerCase();
                     return cellValue.includes(value.toLowerCase());
                 });
             });
@@ -33,8 +24,8 @@ export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableP
         
         if (orderBy) {
             result.sort((a, b) => {
-                const aValue = a[orderBy.key as keyof T];
-                const bValue = b[orderBy.key as keyof T];
+                const aValue = a[orderBy.key];
+                const bValue = b[orderBy.key];
                 
                 if (orderBy.orderby === 'asc') {
                     return aValue > bValue ? 1 : -1;
@@ -54,8 +45,8 @@ export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableP
 
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-    const handleOrder = (key: string) => {
-        const newOrderBy: OrderBy = {
+    const handleOrder = (key) => {
+        const newOrderBy = {
             key,
             orderby: orderBy?.key === key && orderBy.orderby === 'asc' ? 'desc' : 'asc'
         };
@@ -63,19 +54,19 @@ export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableP
         onOrderChange?.(newOrderBy);
     };
 
-    const handleFilterChange = (key: string, value: string) => {
+    const handleFilterChange = (key, value) => {
         const newFilters = { ...filters, [key]: value };
         setFilters(newFilters);
         onFilterChange?.(key, value);
         setCurrentPage(1);
     };
 
-    const getSortIcon = (key: string) => {
+    const getSortIcon = (key) => {
         if (orderBy?.key !== key) return <FaSort />;
         return orderBy.orderby === 'asc' ? <FaSortUp /> : <FaSortDown />;
     };
 
-    const renderCellValue = (value: any, type: ColumnConfig['type']) => {
+    const renderCellValue = (value, type) => {
         if (value === undefined || value === null) return '';
         
         switch (type) {
@@ -86,13 +77,13 @@ export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableP
         }
     };
 
-    const changePage = (page: number) => {
+    const changePage = (page) => {
         if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
     };
 
-    const getPageNumbers = (): number[] => {
-        const pages: number[] = [];
+    const getPageNumbers = () => {
+        const pages = [];
         const maxVisible = 5;
         let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
         let end = Math.min(totalPages, start + maxVisible - 1);
@@ -149,7 +140,7 @@ export function Table<T>({ config, data, onOrderChange, onFilterChange }: TableP
                         <tr key={index}>
                             {config.headers.map(column => (
                                 <td key={column.key}>
-                                    {renderCellValue(row[column.key as keyof T], column.type)}
+                                    {renderCellValue(row[column.key], column.type)}
                                 </td>
                             ))}
                             

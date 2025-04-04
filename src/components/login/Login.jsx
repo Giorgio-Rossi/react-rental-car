@@ -5,7 +5,7 @@ import { useStorage } from '../../hooks/useStorage';
 import './login.css';
 import FontAwesomeHead from '../HeadMeta';
 
-const Login: React.FC = () => {
+const Login = () => {
   const [form, setForm] = useState({
     username: '',
     password: ''
@@ -23,7 +23,7 @@ const Login: React.FC = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
@@ -50,7 +50,7 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
