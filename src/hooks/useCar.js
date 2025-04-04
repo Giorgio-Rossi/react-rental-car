@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 export const useCar = () => {
+    const newDate = new Date(); 
+
     const [cars, setCars] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -30,12 +32,12 @@ export const useCar = () => {
         try {
             const NewCar = {
                 ...car,
-                updatedAt: newDate().toISOString()
+                updatedAt: newDate.toISOString()
             };
-            const reponse = await axios.post(apiUrls.addCar, NewCar, getHeaders());
+            const response = await axios.post(apiUrls.addCar, NewCar, getHeaders());
             setCars(prev => [...prev, response.data]);
-            return reponse.data;
-
+            return response.data;
+            
         } catch (error) {
             setError(error)
             throw error
@@ -47,7 +49,7 @@ export const useCar = () => {
     const updateCar = async (car) => {
         setLoading(true)
         try {
-            const reponse = await axios.put (
+            const response = await axios.put (
                 `${apiUrls.editCar}/$car.id`,
                 car,
                 getHeaders()

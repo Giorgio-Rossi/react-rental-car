@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
-import Login from './components/login/Login.tsx';
+import Login from './components/login/Login.jsx';
+import HomeComponent from './components/home/HomeComponent.jsx';
 import { AuthProvider } from './context/auth.context.js';
 import React from 'react';
 import App from './App';
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: '/login',
         element: <Login />,
+      },
+      {
+        path: '/home',
+        element: <HomeComponent />,
       },
       {
         path: '/app',
