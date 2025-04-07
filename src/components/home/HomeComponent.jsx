@@ -29,46 +29,70 @@ const HomeComponent = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      await getCars();
-      await getUsers();
+      try {
+        await getCars();
+        await getUsers();
 
-      if (user?.role === 'ROLE_ADMIN') {
-        await fetchAdminRequests();
-      } else if (user?.username) {
-        await fetchUserRequests(user.username);
+        if (user?.role === 'ROLE_ADMIN') {
+          await fetchAdminRequests();
+        } else if (user?.username) {
+          await fetchUserRequests(user.username);
+        }
+
+      } catch (error) {
+        console.error("Errore durante il caricamento dei dati:", error);
       }
     };
 
-    loadData();
-  }, [user, getCars]);
+    if (user) { 
+      loadData();
+   };
+
+  }, [user, getCars, fetchUsers, fetchAdminRequests, fetchUserRequests]);
 
   const handleActionClick = async (action, row) => {
     if (action === 'Modifica') {
-      navigate(`/edit-request/${row.id}`, { state: { requestData: row } });
+      if(user?.role === 'ROLE_ADMIN'){
+        navigate(`/edit-request/${row.id}`, { state: { requestData: row } });
+      } else {
+        navigate(`/edit-request/${row.id}`, { state: { requestData: row } });
+      }
+      
     } else if (action === 'Cancella') {
       await deleteRequest(row.id);
     }
   };
 
+  const currentButtonConfigs = user?.role === 'ROLE_ADMIN' ? buttonConfigsAdmin : buttonConfigsUser;
+
+  const handleNavButtonClick = (path) => {
+    if (path) {
+       navigate(path);
+    }
+  };
+
   return (
-    <div className="home-container">
+      <div className="home-container">
       <div className="navbar-user">
         <span>Benvenuto, {user?.username}</span>
         <button onClick={logout}>Logout</button>
       </div>
 
       {user?.role && (
-        <Navbar buttons={user.role === 'ROLE_ADMIN' ? buttonConfigsAdmin : buttonConfigsUser} />
+        <Navbar
+          buttons={currentButtonConfigs}
+          onButtonClick={handleNavButtonClick} 
+        />
       )}
 
       <Table
         config={user?.role === 'ROLE_CUSTOMER' ? tableCustomerConfig : tableAdminConfig}
         data={requests.map(request => ({
           ...request,
-          fullName: users.find(u => u.id === request.userID)?.fullName || 'Unknown',
+          fullName: users.find(u => u.id === request.userId)?.fullName || 'Sconosciuto', 
           start_reservation: request.startReservation ? formatDate(request.startReservation) : '',
           end_reservation: request.endReservation ? formatDate(request.endReservation) : '',
-          carDetails: getCarDetails(request.carID, cars)
+          carDetails: getCarDetails(request.carId, cars) 
         }))}
         onActionClick={({ action, row }) => handleActionClick(action, row)}
       />

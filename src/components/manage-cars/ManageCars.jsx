@@ -1,47 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CarService } from '../../service/car.service.service';
-import { ManageCarsService } from '../../service/manage-cars.service';
+import { useCar } from '../../hooks/useCar';
+import { useAuth } from '../../hooks/useAuth'; 
 import { Table } from '../table/table'; 
+import './manage-cars.css';
 
 const ManageCars = () => {
-  const [cars, setCars] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
-  const carService = new CarService();
-  const manageCarsService = new ManageCarsService();
+  const { user } = useAuth();
+  const { cars, getCars, deleteCar, loading, error } = useCar();
 
   useEffect(() => {
-    const userRole = localStorage.getItem('userRole'); 
-    if (userRole !== 'ROLE_ADMIN') {
+    if (user && user.role !== 'ROLE_ADMIN') {
+      console.log("Utente non autorizzato, reindirizzamento a /home");
       navigate('/home');
+      return;
     }
 
-    loadCars();
-  }, [navigate]);
+  }, [user, navigate]); 
 
-  const loadCars = async () => {
-    try {
-      const fetchedCars = await manageCarsService.getAllCars();
-      setCars(fetchedCars);
-    } catch (error) {
-      console.error('Errore durante il caricamento delle auto:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleActionClick = (action, data) => {
+  const handleActionClick = async (action, data) => { 
     if (action === 'Modifica') {
       navigate(`/edit-cars/${data.id}`, { state: { carData: data } });
     }
     if (action === 'Elimina') {
-      carService.deleteCar(data.id).then(() => {
-        setCars(cars.filter(car => car.id !== data.id));
-      }).catch(err => {
+      try {
+        await deleteCar(data.id);
+        console.log(`Auto con id ${data.id} eliminata.`);
+      } catch (err) {
         console.error('Errore durante l\'eliminazione dell\'auto:', err);
-      });
+      }
     }
   };
 
@@ -63,18 +52,22 @@ const ManageCars = () => {
     }
   };
 
+  if (loading) {
+    return <p>Caricamento auto...</p>;
+  }
+
+  if (error) {
+    return <p style={{ color: 'red' }}>Errore nel caricamento delle auto: {error.message || 'Errore sconosciuto'}</p>;
+  }
+
   return (
-    <div className="manage-cars-container">
+    <div className="manage-cars-container"> 
       <h2 className="title">Gestisci auto</h2>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <Table
-          config={tableManageCars}
-          data={cars}
-          clickAction={handleActionClick}
-        />
-      )}
+      <Table
+        config={tableManageCars}
+        data={cars} 
+        onActionClick={({ action, row }) => handleActionClick(action, row)}
+      />
     </div>
   );
 };

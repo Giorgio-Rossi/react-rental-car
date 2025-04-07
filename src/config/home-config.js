@@ -1,5 +1,3 @@
-import { useCarRequest } from "../hooks/useCarRequest";
-
 export const getTableAdminConfig = () => ({
   headers: [
     { key: 'id', columnName: 'Codice richiesta', type: 'Number', ordinable: true, filtrable: true },
@@ -42,22 +40,20 @@ export const getTableCustomerConfig = (canEditRequest) => ({
   }
 });
 
-
-export function getButtonConfigsAdmin(router) {
+export function getButtonConfigsAdmin() {
   return [
-    { label: 'Home', action: () => router.navigate(['/home']) },
-    { label: 'Gestisci richieste', action: () => router.navigate(['/manage-requests']) },
-    { label: 'Gestisci auto', action: () => router.navigate(['/manage-cars']) },
-    { label: 'Aggiungi auto', action: () => router.navigate(['/add-car']) },
-    { label: 'Gestisci utenti', action: () => router.navigate(['/manage-users']) },
-    { label: 'Aggiungi utente', action: () => router.navigate(['/add-user']) }
+    { label: 'Home', path: '/home' }, 
+    { label: 'Gestisci richieste', path: '/manage-requests' },
+    { label: 'Gestisci auto', path: '/manage-cars' },
+    { label: 'Aggiungi auto', path: '/add-car' },
+    { label: 'Gestisci utenti', path: '/manage-users' },
+    { label: 'Aggiungi utente', path: '/add-user' }
   ];
 }
 
-export function getButtonConfigsUser(router) {
+export function getButtonConfigsUser() {
   return [
-    { label: 'Home', action: () => router.navigate(['/home']) },
-    { label: 'Aggiungi richieste di prenotazione', action: () => router.navigate(['/new-request']) },
+    { label: 'Home', path: '/home' }, 
+    { label: 'Aggiungi richieste di prenotazione', path: '/new-request' },
   ];
 }
-

@@ -1,165 +1,165 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CarRequestService } from '../../service/CarRequest.service';
-import { UserService } from '../../service/user.service';
-import { CarService } from '../../service/car.service.service';
-import { AuthService } from '../../service/auth.service';
-import { ManageCarsService } from '../../service/manage-cars.service';
-import './manage-requests.css'
+import { useCarRequest } from '../../hooks/useCarRequest';
+import { useUser } from '../../hooks/useUser';
+import { useCar } from '../../hooks/useCar';
+import { useAuth } from '../../hooks/useAuth'; 
+
+import './manage-requests.css';
+
 
 const ManageRequests = () => {
-  const [requestsCar, setRequestsCar] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [cars, setCars] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
   const navigate = useNavigate();
-  const manageCarsService = new ManageCarsService();
-  const carRequestService = new CarRequestService();
-  const userService = new UserService();
-  const authService = new AuthService();
-  const carService = new CarService();
+
+  const { user } = useAuth(); 
+  const { requests, fetchAdminRequests, updateRequest, loading: requestsLoading, error: requestsError } = useCarRequest();
+  const { users, fetchUsers, loading: usersLoading, error: usersError } = useUser();
+  const { cars, getCars, loading: carsLoading, error: carsError } = useCar();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedCars = await manageCarsService.getAllCars();
-        const fetchedUsers = await userService.getUsers();
-        const fetchedRequests = await carRequestService.getRequests();
-
-        const updatedRequests = fetchedRequests.map(request => {
-          const user = fetchedUsers.find(u => u.id === request.userID);
-          let carDetails = '';
-          if (Array.isArray(request.carID)) {
-            carDetails = request.carID.map(carID => {
-              const car = fetchedCars.find(car => car.id === carID);
-              return car ? car.licensePlate : 'Unknown';
-            }).join(', ');
-          } else {
-            const car = fetchedCars.find(car => car.id === request.carID);
-            carDetails = car ? (car.licensePlate ?? 'Unknown') : 'Unknown';
-          }
-
-          return {
-            ...request,
-            userFullName: user?.fullName || 'Unknown',
-            start_reservation: request.startReservation ? new Date(request.startReservation).toLocaleDateString() : null,
-            end_reservation: request.endReservation ? new Date(request.endReservation).toLocaleDateString() : null,
-            carDetails: carDetails || 'Unknown'
-          };
-        });
-
-        setRequestsCar(updatedRequests);
-        setUsers(fetchedUsers);
-        setCars(fetchedCars);
-      } catch (error) {
-        console.error('Errore durante il caricamento dei dati:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-
-    const userRole = authService.getUserType();
-    if (userRole !== 'ROLE_ADMIN') {
+    if (user && user.role !== 'ROLE_ADMIN') {
+      console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
+      return; 
     }
-  }, [manageCarsService, userService, carRequestService, authService, navigate]);
 
-  const handleActionClick = (action, data) => {
-    if (action === 'Modifica') {
-      navigate('/manage-request', { state: { userData: data } });
-    } else if (action === 'Elimina') {
-      carRequestService.deleteRequest(data.id).then(() => {
-        setRequestsCar(requestsCar.filter(request => request.id !== data.id));
-      }).catch(err => {
-        console.error('Errore durante l\'eliminazione della richiesta:', err);
-      });
-    } else if (action === 'Approva') {
-      updateRequest(data.id, 'APPROVATA');
+    if (user?.role === 'ROLE_ADMIN') {
+        console.log("Caricamento dati per admin...");
+        fetchAdminRequests(); 
+        fetchUsers();         
+        getCars();            
+    }
+  
+  }, [user, navigate, fetchAdminRequests, fetchUsers, getCars]);
+
+
+  const processedRequests = useMemo(() => {
+    if (!requests || !users || !cars) {
+      return []; 
+    }
+
+    console.log("Processamento richieste...");
+    return requests.map(request => {
+      const userDetail = users.find(u => u.id === (request.userId || request.userID));
+      let carDetails = 'Sconosciuta';
+      if (request.carId || request.carID) {
+        const carIdValue = request.carId || request.carID;
+        if (Array.isArray(carIdValue)) {
+            carDetails = carIdValue.map(id => cars.find(c => c.id === id)?.licensePlate || 'ID Sconosciuto')
+                                  .filter(Boolean).join(', ') || 'Nessuna Targa';
+        } else {
+            carDetails = cars.find(c => c.id === carIdValue)?.licensePlate || 'Sconosciuta';
+        }
+      }
+
+
+      return {
+        ...request,
+        userFullName: userDetail?.fullName || 'Sconosciuto',
+        carDetails: carDetails,
+  
+      };
+    });
+  }, [requests, users, cars]); 
+
+
+
+  const handleActionClick = async (action, requestData) => {
+    console.log(`Azione: ${action}, Richiesta ID: ${requestData.id}`);
+    const requestId = requestData.id;
+    let newStatus = '';
+
+    if (action === 'Approva') {
+      newStatus = 'APPROVATA';
     } else if (action === 'Rifiuta') {
-      updateRequest(data.id, 'RIFIUTATA');
+      newStatus = 'RIFIUTATA';
+    } else if (action === 'Modifica') {
+   
+        navigate(`/edit-request/${requestId}`, { state: { requestData: requestData } });
+        return;
+    } else if (action === 'Elimina') {
+        console.warn("Azione Elimina non implementata con hook.");
+        return;
+    }
+
+
+    if (newStatus) {
+      try {
+        await updateRequest(requestId, { status: newStatus });
+        console.log(`Richiesta ${requestId} aggiornata a ${newStatus}`);
+      } catch (error) {
+        console.error(`Errore durante l'aggiornamento dello stato a ${newStatus}:`, error);
+      }
     }
   };
 
-  const updateRequest = (id, status) => {
-    const request = requestsCar.find(r => r.id === id);
-    if (request) {
-      carRequestService.updateRequestStatus(id, status).then(updatedRequest => {
-        request.status = updatedRequest.status;
-        setRequestsCar([...requestsCar]);
-      });
-    }
-  };
+  const isLoading = requestsLoading || usersLoading || carsLoading;
+  const combinedError = requestsError || usersError || carsError;
 
   const tableConfig = {
-    headers: [
-      { key: 'id', columnName: 'ID', type: 'Number', ordinable: true },
-      { key: 'fullName', columnName: 'Cliente', type: 'String' },
-      { key: 'carDetails', columnName: 'Auto richiesta', type: 'String' },
-      { key: 'status', columnName: 'Stato', type: 'String', ordinable: true, filtrable: true }
-    ],
-    currentByDefault: { key: 'id', orderby: 'asc' },
-    pagination: { itemsPerPage: 10, currentPage: 1 },
-    actions: {
       actions: [
-        { name: 'Approva', visible: (row) => row.status !== 'Annullata' },
-        { name: 'Rifiuta', visible: (row) => row.status !== 'Annullata' }
+          { name: 'Approva', visible: (row) => row.status !== 'Annullata' && row.status !== 'APPROVATA' && row.status !== 'RIFIUTATA' }, 
+          { name: 'Rifiuta', visible: (row) => row.status !== 'Annullata' && row.status !== 'APPROVATA' && row.status !== 'RIFIUTATA' }, 
       ]
-    }
   };
 
-  const buttonConfigs = [
-    {
-      label: 'Approva',
-      action: (id) => updateRequest(id, 'APPROVATA'),
-      type: 'button',
-      style: { color: 'white', backgroundColor: 'green', border: '1px solid green' }
-    },
-    {
-      label: 'Rifiuta',
-      action: (id) => updateRequest(id, 'RIFIUTATA'),
-      type: 'button',
-      style: { color: 'white', backgroundColor: 'red', border: '1px solid red' }
-    }
-  ];
+  if (isLoading) {
+    return <div className="manage-requests-container"><p>Caricamento dati...</p></div>;
+  }
+
+  if (combinedError) {
+    return <div className="manage-requests-container"><p style={{ color: 'red' }}>Errore nel caricamento: {combinedError.message || 'Errore sconosciuto'}</p></div>;
+  }
 
   return (
     <div className="manage-requests-container">
       <h2>Gestione richieste</h2>
-      {loading ? <p>Loading...</p> : (
         <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Auto richiesta</th>
-              <th>Stato</th>
-              <th>Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requestsCar.map((request) => (
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Auto richiesta</th>
+            <th>Stato</th>
+            <th>Data Inizio</th>
+            <th>Data Fine</th>   
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          {processedRequests.length > 0 ? (
+            processedRequests.map((request) => (
               <tr key={request.id}>
                 <td>{request.id}</td>
                 <td>{request.userFullName}</td>
                 <td>{request.carDetails}</td>
                 <td>{request.status}</td>
+                <td>{request.startReservation ? new Date(request.startReservation).toLocaleDateString('it-IT') : '-'}</td>
+                <td>{request.endReservation ? new Date(request.endReservation).toLocaleDateString('it-IT') : '-'}</td>
                 <td>
-                  {tableConfig.actions.actions.map((action) =>
-                    action.visible(request) ? (
-                      <button key={action.name} onClick={() => handleActionClick(action.name, request)}>
-                        {action.name}
-                      </button>
-                    ) : null
-                  )}
+                  {tableConfig.actions
+                      .filter(action => action.visible(request)) 
+                      .map((action) => (
+                        <button
+                           key={action.name}
+                           onClick={() => handleActionClick(action.name, request)}
+                           style={action.name === 'Approva' ?
+                               { backgroundColor: 'green', color: 'white', marginRight: '5px' } :
+                               { backgroundColor: 'red', color: 'white' }}
+                        >
+                          {action.name}
+                        </button>
+                  ))}
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7">Nessuna richiesta trovata.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
