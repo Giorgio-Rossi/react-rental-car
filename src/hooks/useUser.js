@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import axios from 'axios';
 
 export const useUser = () => {
@@ -121,10 +121,6 @@ export const useUser = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        getUsers();
-    }, []);
 
     return {
         users,

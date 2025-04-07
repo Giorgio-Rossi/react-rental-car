@@ -7,31 +7,31 @@ import { useAuth } from '../../hooks/useAuth';
 
 import './manage-requests.css';
 
-
 const ManageRequests = () => {
   const navigate = useNavigate();
-
   const { user } = useAuth(); 
   const { requests, fetchAdminRequests, updateRequest, loading: requestsLoading, error: requestsError } = useCarRequest();
-  const { users, fetchUsers, loading: usersLoading, error: usersError } = useUser();
+  const { users, getUsers, loading: usersLoading, error: usersError } = useUser();
   const { cars, getCars, loading: carsLoading, error: carsError } = useCar();
 
+  const [dataLoaded, setDataLoaded] = useState(false);
+
   useEffect(() => {
-    if (user && user.role !== 'ROLE_ADMIN') {
+    if (user && user.role !== 'ADMIN') {
       console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
       return; 
     }
 
-    if (user?.role === 'ROLE_ADMIN') {
+    if (user?.role === 'ADMIN' && !dataLoaded) {
         console.log("Caricamento dati per admin...");
         fetchAdminRequests(); 
-        fetchUsers();         
-        getCars();            
+        getUsers();         
+        getCars();
+        setDataLoaded(true);  
     }
   
-  }, [user, navigate, fetchAdminRequests, fetchUsers, getCars]);
-
+  }, [user, navigate, fetchAdminRequests, getUsers, getCars, dataLoaded]);
 
   const processedRequests = useMemo(() => {
     if (!requests || !users || !cars) {
@@ -52,17 +52,13 @@ const ManageRequests = () => {
         }
       }
 
-
       return {
         ...request,
         userFullName: userDetail?.fullName || 'Sconosciuto',
         carDetails: carDetails,
-  
       };
     });
-  }, [requests, users, cars]); 
-
-
+  }, [requests, users, cars]);
 
   const handleActionClick = async (action, requestData) => {
     console.log(`Azione: ${action}, Richiesta ID: ${requestData.id}`);
@@ -74,14 +70,12 @@ const ManageRequests = () => {
     } else if (action === 'Rifiuta') {
       newStatus = 'RIFIUTATA';
     } else if (action === 'Modifica') {
-   
         navigate(`/edit-request/${requestId}`, { state: { requestData: requestData } });
         return;
     } else if (action === 'Elimina') {
         console.warn("Azione Elimina non implementata con hook.");
         return;
     }
-
 
     if (newStatus) {
       try {
@@ -143,7 +137,7 @@ const ManageRequests = () => {
                         <button
                            key={action.name}
                            onClick={() => handleActionClick(action.name, request)}
-                           style={action.name === 'Approva' ?
+                           style={action.name === 'Approva' ? 
                                { backgroundColor: 'green', color: 'white', marginRight: '5px' } :
                                { backgroundColor: 'red', color: 'white' }}
                         >

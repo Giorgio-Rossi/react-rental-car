@@ -6,7 +6,12 @@ import { useCar } from '../../hooks/useCar.js';
 import { useUser } from '../../hooks/useUser';
 import { Table } from '../table/table';
 import Navbar from '../navbar/Navbar';
-import { getButtonConfigsAdmin, getButtonConfigsUser, getTableAdminConfig, getTableCustomerConfig } from '../../config/home-config.js';
+import {
+  getButtonConfigsAdmin,
+  getButtonConfigsUser,
+  getTableAdminConfig,
+  getTableCustomerConfig
+} from '../../config/home-config.js';
 import './home.css';
 
 const HomeComponent = () => {
@@ -18,8 +23,7 @@ const HomeComponent = () => {
     requests,
     fetchAdminRequests,
     fetchUserRequests,
-    deleteRequest,
-    refreshRequests
+    deleteRequest
   } = useCarRequest();
 
   const tableAdminConfig = getTableAdminConfig();
@@ -28,71 +32,60 @@ const HomeComponent = () => {
   const buttonConfigsUser = getButtonConfigsUser();
 
   useEffect(() => {
+    if (!user) return;
+
     const loadData = async () => {
       try {
         await getCars();
         await getUsers();
 
-        if (user?.role === 'ROLE_ADMIN') {
+        if (user.role === 'ROLE_ADMIN') {
           await fetchAdminRequests();
-        } else if (user?.username) {
+        } else if (user.username) {
           await fetchUserRequests(user.username);
         }
-
       } catch (error) {
         console.error("Errore durante il caricamento dei dati:", error);
       }
     };
 
-    if (user) { 
-      loadData();
-   };
-
-  }, [user, getCars, fetchUsers, fetchAdminRequests, fetchUserRequests]);
+    loadData();
+  }, [user, getCars, getUsers, fetchAdminRequests, fetchUserRequests]);
 
   const handleActionClick = async (action, row) => {
     if (action === 'Modifica') {
-      if(user?.role === 'ROLE_ADMIN'){
-        navigate(`/edit-request/${row.id}`, { state: { requestData: row } });
-      } else {
-        navigate(`/edit-request/${row.id}`, { state: { requestData: row } });
-      }
-      
+      navigate(`/edit-request/${row.id}`, { state: { requestData: row } });
     } else if (action === 'Cancella') {
       await deleteRequest(row.id);
     }
   };
 
-  const currentButtonConfigs = user?.role === 'ROLE_ADMIN' ? buttonConfigsAdmin : buttonConfigsUser;
-
   const handleNavButtonClick = (path) => {
-    if (path) {
-       navigate(path);
-    }
+    if (path) navigate(path);
   };
 
+  const currentButtonConfigs = user?.role === 'ROLE_ADMIN' ? buttonConfigsAdmin : buttonConfigsUser;
+  const currentTableConfig = user?.role === 'ROLE_CUSTOMER' ? tableCustomerConfig : tableAdminConfig;
+
   return (
-      <div className="home-container">
-      <div className="navbar-user">
-        <span>Benvenuto, {user?.username}</span>
-        <button onClick={logout}>Logout</button>
-      </div>
+    <div className="home-container">
 
       {user?.role && (
         <Navbar
           buttons={currentButtonConfigs}
-          onButtonClick={handleNavButtonClick} 
+          onButtonClick={handleNavButtonClick}
+          username={user?.username}
         />
       )}
 
       <Table
-        config={user?.role === 'ROLE_CUSTOMER' ? tableCustomerConfig : tableAdminConfig}
+        config={currentTableConfig}
         data={requests.map(request => ({
           ...request,
-          fullName: users.find(u => u.id === request.userId)?.fullName || 'Sconosciuto', 
-          start_reservation: request.startReservation ? formatDate(request.startReservation) : '',
-          end_reservation: request.endReservation ? formatDate(request.endReservation) : '',
-          carDetails: getCarDetails(request.carId, cars) 
+          fullName: users.find(u => u.id === request.userId)?.fullName || 'Sconosciuto',
+          start_reservation: formatDate(request.startReservation),
+          end_reservation: formatDate(request.endReservation),
+          carDetails: getCarDetails(request.carId, cars)
         }))}
         onActionClick={({ action, row }) => handleActionClick(action, row)}
       />
@@ -100,7 +93,10 @@ const HomeComponent = () => {
   );
 };
 
-const formatDate = (date) => new Date(date).toLocaleDateString('it-IT');
+const formatDate = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('it-IT');
+};
 
 const getCarDetails = (carID, cars) => {
   if (Array.isArray(carID)) {

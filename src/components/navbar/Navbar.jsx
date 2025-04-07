@@ -1,11 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import Button from '../button/Button';
+import './navbar.css';
 
-const Navbar = ({ buttons = [], username }) => {
+const Navbar = ({ buttons = [], onButtonClick, username }) => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout } = useAuth(); 
 
   const handleLogout = () => {
     logout();
@@ -14,21 +14,25 @@ const Navbar = ({ buttons = [], username }) => {
 
   return (
     <nav className="navbar">
-      {buttons.map((button, index) => (
-        <Button
-          key={index}
-          label={button.label}
-          onClick={button.action}
-        />
-      ))}
-      
+      <div className="navbar-links">
+        {buttons.map((button, index) => (
+          <button
+            key={index}
+            onClick={() => onButtonClick(button.path)} 
+          >
+            {button.label}
+          </button>
+
+        ))}
+      </div>
+
       {username && (
-        <div className="user-info">
-          <span>Welcome, {username}</span>
-          <Button 
-            label="Logout" 
-            onClick={handleLogout}
-          />
+        <div className="navbar-user">
+          <span>Benvenuto, {username}</span>
+ 
+          <button onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       )}
     </nav>

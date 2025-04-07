@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './add-request-user.css'
 
 export default function AddRequestUser() {
   const navigate = useNavigate();

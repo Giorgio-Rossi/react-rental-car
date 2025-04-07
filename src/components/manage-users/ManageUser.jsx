@@ -10,7 +10,7 @@ const ManageUsers = () => {
   const navigate = useNavigate();
 
   const { user: loggedInUser } = useAuth(); 
-  const { users, fetchUsers, deleteUser, loading, error } = useUser();
+  const { users, getUsers, deleteUser, loading, error } = useUser();
 
   useEffect(() => {
     if (loggedInUser && loggedInUser.role !== 'ROLE_ADMIN') {
@@ -22,10 +22,10 @@ const ManageUsers = () => {
  
     if (loggedInUser?.role === 'ROLE_ADMIN') {
         console.log("Caricamento utenti per admin...");
-        fetchUsers(); 
+        getUsers(); 
     }
 
-  }, [loggedInUser, navigate, fetchUsers]);
+  }, [loggedInUser, navigate, getUsers]);
 
   const handleActionClick = async ({ action, row: userData }) => { 
     console.log(`Azione: ${action}, Utente ID: ${userData.id}`);

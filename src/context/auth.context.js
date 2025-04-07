@@ -77,18 +77,18 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    const refreshToken = async () => {
-        try {
-            const response = await axios.post(`${apiUrl}/auth/refresh`, {});
-            const { token } = response.data;
-            setToken(token)
-            localStorage.setItem('auth_token', token);
-            return token;
-        } catch (error) {
-            logout();
-            throw error;
-        }
-    }
+    // const refreshToken = async () => {
+    //     try {
+    //         const response = await axios.post(`${apiUrl}/auth/refresh`, {});
+    //         const { token } = response.data;
+    //         setToken(token)
+    //         localStorage.setItem('auth_token', token);
+    //         return token;
+    //     } catch (error) {
+    //         logout();
+    //         throw error;
+    //     }
+    // }
 
     const value = {
         user,
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         isLoggedIn,
         getUserType,
-        refreshToken
+        // refreshToken
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -105,5 +105,4 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
     return useContext(AuthContext);
-
 }

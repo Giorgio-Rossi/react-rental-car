@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useStorage } from '../../hooks/useStorage';
-import './login.css';
+
 import FontAwesomeHead from '../HeadMeta';
+import './login.css';
 
 const Login = () => {
   const [form, setForm] = useState({

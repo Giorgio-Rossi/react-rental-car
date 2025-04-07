@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import React from 'react';
 
+
 import { AuthProvider } from './context/auth.context.js';
 
 import Login from './components/login/Login.jsx';
@@ -14,6 +15,8 @@ import ManageUsers from './components/manage-users/ManageUser.jsx';
 import AddUser from './components/add-user/AddUser.jsx';
 import FormViewEditUser from './components/form-view-edit-users/FormViewEditUser.jsx'; 
 import FormViewEditRequest from './components/form-view-edit-request/FormViewEditRequest.jsx';
+
+import App from './App';
 
 const router = createBrowserRouter([
   {
@@ -73,10 +76,9 @@ const router = createBrowserRouter([
         element: <FormViewEditRequest />,
       },
       {
-        path: '/app',
+        path: '/app', 
         element: <App />,
       },
-  
     ],
   },
 ]);

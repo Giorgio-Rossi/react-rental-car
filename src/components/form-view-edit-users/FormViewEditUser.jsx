@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useUser } from '../../hooks/useUser'; 
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useUser } from '../../hooks/useUser';
 import Button from '../button/Button';
-import './form-view-edit-users.css'; 
+import './form-view-edit-users.css';
 
 const FormViewEditUser = () => {
-  const { id } = useParams(); L
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { updateUser, getUser } = useUser(); 
+  const location = useLocation();
+  const { updateUser, getUser } = useUser();
+
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(null); 
-  const roleOptions = ['ROLE_ADMIN', 'ROLE_USER']; 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const roleOptions = ['ROLE_ADMIN', 'ROLE_USER'];
 
   useEffect(() => {
     const loadUserData = async () => {
       setLoading(true);
       setError(null);
-      const navigationData = history.state?.userData;
+      const navigationData = location.state?.userData;
 
       if (navigationData) {
         setUserData(navigationData);
@@ -25,17 +27,15 @@ const FormViewEditUser = () => {
       } else {
         try {
           if (id) {
-            const fetchedUser = await getUser(id); 
+            const fetchedUser = await getUser(id);
             if (fetchedUser) {
-               setUserData(fetchedUser);
+              setUserData(fetchedUser);
             } else {
-               throw new Error("Utente non trovato");
+              throw new Error(`Utente con ID ${id} non trovato.`);
             }
-
           } else {
-             throw new Error("ID utente mancante nell'URL");
+            throw new Error("ID utente mancante nell'URL.");
           }
-
         } catch (err) {
           console.error("Errore durante il caricamento dell'utente:", err);
           setError(err.message || 'Errore nel caricamento dei dati utente.');
@@ -46,19 +46,21 @@ const FormViewEditUser = () => {
     };
 
     loadUserData();
-  }, [id, getUser]);
-
+  }, [id, getUser, location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserData(prevData => ({ ...prevData, [name]: value }));
+    setUserData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
   };
 
-
-  const saveUser = async () => {
+  const handleSaveChanges = async () => {
     if (userData) {
+      setError(null);
       try {
-        await updateUser(userData); 
+        await updateUser(userData);
         navigate('/manage-users');
       } catch (error) {
         console.error('Errore durante l\'aggiornamento dell\'utente:', error);
@@ -67,10 +69,9 @@ const FormViewEditUser = () => {
     }
   };
 
-  const buttonConfig = [
-    { label: 'Salva', action: saveUser },
-    { label: 'Chiudi', action: () => navigate('/manage-users') },
-  ];
+  const handleClose = () => {
+    navigate('/manage-users');
+  };
 
   const capitalize = (str) => {
     if (!str) return '';
@@ -81,35 +82,42 @@ const FormViewEditUser = () => {
     return Object.keys(obj || {});
   };
 
-
   if (loading) {
-    return <div>Caricamento dati utente...</div>;
+    return <div className="form-container">Caricamento dati utente...</div>;
   }
 
-  if (error) {
-      return <div style={{ color: 'red' }}>Errore: {error}</div>;
+  if (error && !userData) {
+    return (
+      <div className="form-container error-message">
+        <h3>Errore</h3>
+        <p>{error}</p>
+        <Button config={{ label: 'Indietro' }} onClick={handleClose} />
+      </div>
+    );
   }
 
   if (!userData) {
-    return <div>Nessun dato utente disponibile.</div>;
+    return <div className="form-container">Nessun dato utente disponibile.</div>;
   }
 
-
   return (
-    <div className="edit-user-container"> 
+    <div className="edit-user-container form-container">
       <h3>Modifica Utente</h3>
+      {error && <p className="error-message" style={{color: 'red'}}>{error}</p>}
+
       <form onSubmit={(e) => e.preventDefault()}>
         {objectKeys(userData)
-          .filter(key => key !== 'role' && key !== 'id') 
+          .filter(key => key !== 'role' && key !== 'id' && key !== 'password')
           .map(key => (
             <div className="form-group" key={key}>
               <label htmlFor={key}>{capitalize(key)}</label>
               <input
-                type={key === 'password' ? 'password' : 'text'} 
+                type={'text'}
                 id={key}
                 name={key}
-                value={userData[key] || ''} 
+                value={userData[key] || ''}
                 onChange={handleChange}
+                disabled={key === 'username'}
               />
             </div>
           ))}
@@ -124,19 +132,22 @@ const FormViewEditUser = () => {
           >
             {roleOptions.map(role => (
               <option key={role} value={role}>
-                {role === 'ROLE_ADMIN' ? 'Admin' : 'User'} 
+                {role === 'ROLE_ADMIN' ? 'Admin' : 'User'}
               </option>
             ))}
           </select>
         </div>
 
-        {buttonConfig.map((button, index) => (
-          <Button
-            key={index}
-            config={{ label: button.label }} 
-            onClick={button.action} 
-          />
-        ))}
+        <div className="form-actions">
+            <Button
+              config={{ label: 'Salva' }}
+              onClick={handleSaveChanges}
+            />
+            <Button
+              config={{ label: 'Chiudi' }}
+              onClick={handleClose}
+            />
+        </div>
       </form>
     </div>
   );

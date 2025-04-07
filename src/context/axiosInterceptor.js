@@ -8,7 +8,6 @@ const api = axios.create({
     }
 });
 
-// Request Interceptor
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('auth_token');
@@ -21,27 +20,26 @@ api.interceptors.request.use(
     }
 )
 
-// Response Interceptor
-api.interceptors.request.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
-        const { logout, refreshToken } = useAuth();
+// api.interceptors.request.use(
+//     (response) => response,
+//     async (error) => {
+//         const originalRequest = error.config;
+//         const { logout, refreshToken } = useAuth();
 
-        if (error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+//         if (error.response.status === 401 && !originalRequest._retry) {
+//             originalRequest._retry = true;
 
-            try {
-                const newToken = await refreshToken();
-                axios.defaults.headers.common['Authorization'] = `Bearer ${newToken};`;
-                originalRequest.headers['Authorization'] = `Bearer ${newToken};`;
-                return api(originalRequest);
+//             try {
+//                 const newToken = await refreshToken();
+//                 axios.defaults.headers.common['Authorization'] = `Bearer ${newToken};`;
+//                 originalRequest.headers['Authorization'] = `Bearer ${newToken};`;
+//                 return api(originalRequest);
 
-            } catch (refreshError) {
-                logout();
-                return Promise.reject(refreshError);
-            }
-        }
-        return Promise.reject(error);
-    }
-)
+//             } catch (refreshError) {
+//                 logout();
+//                 return Promise.reject(refreshError);
+//             }
+//         }
+//         return Promise.reject(error);
+//     }
+// )
