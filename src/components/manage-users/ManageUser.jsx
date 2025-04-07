@@ -1,45 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
-import { Table } from '../table/table';
-import { UserService } from '../../service/user.service';
-import { AuthService } from '../../service/auth.service';
-import './manage-users.css'
+import { Table } from '../table/table'; 
+import { useUser } from '../../hooks/useUser';
+import { useAuth } from '../../hooks/useAuth'; 
+
+import './manage-users.css'; 
 
 const ManageUsers = () => {
-  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
-  const userService = new UserService();
-  const authService = new AuthService();
+
+  const { user: loggedInUser } = useAuth(); 
+  const { users, fetchUsers, deleteUser, loading, error } = useUser();
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const fetchedUsers = await userService.getUsers();
-        setUsers(fetchedUsers);
-      } catch (err) {
-        console.error('Errore durante il caricamento degli utenti:', err);
-      }
-    };
-
-    fetchUsers();
-
-    const userRole = authService.getUserType();
-    if (userRole !== 'ROLE_ADMIN') {
+    if (loggedInUser && loggedInUser.role !== 'ROLE_ADMIN') {
+      console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
+      return; 
     }
-  }, [navigate, userService, authService]);
 
-  const handleActionClick = (action, data) => {
+ 
+    if (loggedInUser?.role === 'ROLE_ADMIN') {
+        console.log("Caricamento utenti per admin...");
+        fetchUsers(); 
+    }
+
+  }, [loggedInUser, navigate, fetchUsers]);
+
+  const handleActionClick = async ({ action, row: userData }) => { 
+    console.log(`Azione: ${action}, Utente ID: ${userData.id}`);
     if (action === 'Modifica') {
-      navigate('/edit-user', { state: { userData: data } });
-    }
-
-    if (action === 'Elimina') {
-      userService.deleteUser(data.id).then(() => {
-        setUsers(users.filter(user => user.id !== data.id));
-      }).catch(err => {
-        console.error('Errore durante l\'eliminazione dell\'utente:', err);
-      });
+      navigate(`/edit-user/${userData.id}`, { state: { userData: userData } });
+    } else if (action === 'Elimina') {
+      if (window.confirm(`Sei sicuro di voler eliminare l'utente ${userData.username}?`)) {
+        try {
+          await deleteUser(userData.id);
+          console.log(`Utente con id ${userData.id} eliminato.`);
+        } catch (err) {
+          console.error('Errore durante l\'eliminazione dell\'utente:', err);
+        }
+      }
     }
   };
 
@@ -56,21 +56,23 @@ const ManageUsers = () => {
     pagination: { itemsPerPage: 10, currentPage: 1 },
     actions: {
       actions: [
-        {
-          name: 'Modifica',
-          visible: (row) => true,
-        },
-        {
-          name: 'Elimina',
-          visible: (row) => true,
-        }
+        { name: 'Modifica', visible: (row) => true },
+        { name: 'Elimina', visible: (row) => true }
       ]
     }
   };
 
+  if (loading) {
+    return <div className="manage-users-container"><p>Caricamento utenti...</p></div>;
+  }
+
+  if (error) {
+    return <div className="manage-users-container"><p style={{ color: 'red' }}>Errore nel caricamento degli utenti: {error.message || 'Errore sconosciuto'}</p></div>;
+  }
+
   return (
-    <div>
-      <div className="title">Gestisci utenti</div>
+    <div className="manage-users-container">
+      <h2 className="title">Gestisci utenti</h2> 
       <div>
         <Table
           config={tableManageUser}
