@@ -12,8 +12,8 @@ import './home.css';
 const HomeComponent = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { cars, fetchCars } = useCar();
-  const { users, fetchUsers } = useUser();
+  const { cars, getCars } = useCar();
+  const { users, getUsers } = useUser();
   const {
     requests,
     fetchAdminRequests,
@@ -29,8 +29,8 @@ const HomeComponent = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      await fetchCars();
-      await fetchUsers();
+      await getCars();
+      await getUsers();
 
       if (user?.role === 'ROLE_ADMIN') {
         await fetchAdminRequests();
@@ -40,7 +40,7 @@ const HomeComponent = () => {
     };
 
     loadData();
-  }, [user]);
+  }, [user, getCars]);
 
   const handleActionClick = async (action, row) => {
     if (action === 'Modifica') {

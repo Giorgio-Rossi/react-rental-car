@@ -1,23 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from './useAuth';
 
 export const useCarRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { user } = useAuth();
 
-  const fetchRequests = useCallback(async () => {
+
+  const fetchRequestsBase = useCallback(async (url) => {  
     setLoading(true);
     setError(null);
     try {
-      let url = '/api/requests';
-      if (user && user.role !== 'ROLE_ADMIN') {
-        url = `/api/requests?user=${user.username}`;
-      }
-      
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch requests');
+      if (!response.ok) throw new Error(`Failed to fetch requests from ${url}`);
       const data = await response.json();
       setRequests(data);
     } catch (err) {
@@ -25,7 +19,17 @@ export const useCarRequest = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
+
+  const fetchAdminRequests = useCallback(async () => {
+    await fetchRequestsBase('/api/requests');
+  }, [fetchRequestsBase]);
+
+
+  const fetchUserRequests = useCallback(async (username) => {
+    await fetchRequestsBase(`/api/requests?user=${username}`);
+  }, [fetchRequestsBase]);
+
 
   const deleteRequest = useCallback(async (requestId) => {
     try {
@@ -33,7 +37,7 @@ export const useCarRequest = () => {
       const response = await fetch(`/api/requests/${requestId}`, {
         method: 'DELETE'
       });
-      
+
       if (!response.ok) throw new Error('Failed to delete request');
       setRequests(prev => prev.filter(req => req.id !== requestId));
     } catch (err) {
@@ -53,7 +57,7 @@ export const useCarRequest = () => {
         },
         body: JSON.stringify(newRequest)
       });
-      
+
       if (!response.ok) throw new Error('Failed to create request');
       const data = await response.json();
       setRequests(prev => [...prev, data]);
@@ -76,7 +80,7 @@ export const useCarRequest = () => {
         },
         body: JSON.stringify(updatedData)
       });
-      
+
       if (!response.ok) throw new Error('Failed to update request');
       const data = await response.json();
       setRequests(prev => prev.map(req => req.id === requestId ? data : req));
@@ -89,19 +93,17 @@ export const useCarRequest = () => {
     }
   }, []);
 
-  
-  useEffect(() => {
-    fetchRequests();
-  }, [fetchRequests]);
+
 
   return {
     requests,
     loading,
     error,
-    fetchRequests,
+    fetchAdminRequests,
+    fetchUserRequests,
     deleteRequest,
     createRequest,
     updateRequest,
-    refreshRequests: fetchRequests 
+    refreshRequests: fetchAdminRequests 
   };
 };
