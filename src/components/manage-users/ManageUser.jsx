@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'; 
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table } from '../table/table'; 
+import { Table } from '../table/table';
 import { useUser } from '../../hooks/useUser';
 import { useAuth } from '../../hooks/useAuth'; 
 
@@ -8,31 +8,26 @@ import './manage-users.css';
 
 const ManageUsers = () => {
   const navigate = useNavigate();
-
-  const { user: loggedInUser } = useAuth(); 
+  const { user: loggedInUser } = useAuth();
   const { users, getUsers, deleteUser, loading, error } = useUser();
 
   useEffect(() => {
-    if (loggedInUser && loggedInUser.role !== 'ROLE_ADMIN') {
+    if (!loggedInUser || loggedInUser.role !== 'ROLE_ADMIN') {
       console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
-      return; 
+      return;
     }
 
- 
-    if (loggedInUser?.role === 'ROLE_ADMIN') {
-        console.log("Caricamento utenti per admin...");
-        getUsers(); 
-    }
-
-  }, [loggedInUser, navigate, getUsers]);
+    console.log("Caricamento utenti per admin...");
+    getUsers(); 
+  }, [loggedInUser, navigate, getUsers]); 
 
   const handleActionClick = async ({ action, row: userData }) => { 
-    console.log(`Azione: ${action}, Utente ID: ${userData.id}`);
     if (action === 'Modifica') {
-      navigate(`/edit-user/${userData.id}`, { state: { userData: userData } });
+      navigate(`/edit-user/${userData.id}`, { state: { userData } });
     } else if (action === 'Elimina') {
-      if (window.confirm(`Sei sicuro di voler eliminare l'utente ${userData.username}?`)) {
+      const confirmDelete = window.confirm(`Sei sicuro di voler eliminare l'utente ${userData.username}?`);
+      if (confirmDelete) {
         try {
           await deleteUser(userData.id);
           console.log(`Utente con id ${userData.id} eliminato.`);
@@ -56,8 +51,8 @@ const ManageUsers = () => {
     pagination: { itemsPerPage: 10, currentPage: 1 },
     actions: {
       actions: [
-        { name: 'Modifica', visible: (row) => true },
-        { name: 'Elimina', visible: (row) => true }
+        { name: 'Modifica', visible: () => true },
+        { name: 'Elimina', visible: () => true }
       ]
     }
   };
@@ -73,13 +68,11 @@ const ManageUsers = () => {
   return (
     <div className="manage-users-container">
       <h2 className="title">Gestisci utenti</h2> 
-      <div>
-        <Table
-          config={tableManageUser}
-          data={users}
-          onActionClick={handleActionClick}
-        />
-      </div>
+      <Table
+        config={tableManageUser}
+        data={users}
+        onActionClick={handleActionClick}
+      />
     </div>
   );
 };

@@ -1,9 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import axios from "axios";
 
 export const useCar = () => {
-    const newDate = new Date(); 
-
     const [cars, setCars] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -12,93 +10,79 @@ export const useCar = () => {
 
     const apiUrls = {
         addCar: `${apiUrl}/admin/add-car`,
-        lastId: `${apiUrl}/admin/last-car-id`,
         allCars: `${apiUrl}/api/cars/allcars`,
         editCar: `${apiUrl}/admin/edit-car`,
         deleteCar: `${apiUrl}/api/cars`
     };
 
-    const getHeaders = useCallback(() => {
-        const token = localStorage.getItem('auth_token');
-        return {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        };
-    }, []);
+    const getHeaders = useCallback(() => ({
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+        }
+    }), []);
 
-    const createCar = async (car) => {
+    const getCars = useCallback(async () => {
         setLoading(true);
         try {
-            const NewCar = {
-                ...car,
-                updatedAt: newDate.toISOString()
-            };
-            const response = await axios.post(apiUrls.addCar, NewCar, getHeaders());
-            setCars(prev => [...prev, response.data]);
+            const response = await axios.get(apiUrls.allCars, getHeaders());
+            setCars(response.data);
             return response.data;
-            
         } catch (error) {
-            setError(error)
-            throw error
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const updateCar = async (car) => {
-        setLoading(true)
-        try {
-            const response = await axios.put (
-                `${apiUrls.editCar}/$car.id`,
-                car,
-                getHeaders()
-            );
-            setCars(prev => prev.map(c => c.id === car.id ? response.data : c))
-            return response.data;
-            
-        } catch (err) {
             setError(error);
             throw error;
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
-
-    const deleteCar = async (id) => {
-        setLoading(true)
-        try {
-            const response = await axios.delete (
-                `${apiUrls.deleteCar}/${id}`,
-                getHeaders()
-            );
-            setCars(prev => prev.filter(car => car.id !== id));
-            return response.data
-        } catch (error) {
-            setError(error)
-            throw error;
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const getCars = useCallback(async () => {
-        setLoading(true)
-         try {
-            const response = await axios.get(apiUrls.allCars, getHeaders());
-            setCars(response.data)
-            return response.data;
-         } catch (error) {
-            setError(error)
-            throw error
-         } finally {
-            setLoading(false)
-         }
     }, [apiUrls.allCars, getHeaders]);
 
-    useEffect( ()=> {
-        getCars();
-    }, [getCars]);
+    const createCar = useCallback(async (car) => {
+        setLoading(true);
+        try {
+            const response = await axios.post(
+                apiUrls.addCar,
+                { ...car, updatedAt: new Date().toISOString() },
+                getHeaders()
+            );
+            setCars(prev => [...prev, response.data]);
+            return response.data;
+        } catch (error) {
+            setError(error);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }, [apiUrls.addCar, getHeaders]);
+
+    const updateCar = useCallback(async (car) => {
+        setLoading(true);
+        try {
+            const response = await axios.put(
+                `${apiUrls.editCar}/${car.id}`,
+                car,
+                getHeaders()
+            );
+            setCars(prev => prev.map(c => c.id === car.id ? response.data : c));
+            return response.data;
+        } catch (err) {
+            setError(err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, [apiUrls.editCar, getHeaders]);
+
+    const deleteCar = useCallback(async (id) => {
+        setLoading(true);
+        try {
+            await axios.delete(`${apiUrls.deleteCar}/${id}`, getHeaders());
+            setCars(prev => prev.filter(car => car.id !== id));
+        } catch (error) {
+            setError(error);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }, [apiUrls.deleteCar, getHeaders]);
 
     return {
         cars,
@@ -108,7 +92,5 @@ export const useCar = () => {
         updateCar,
         deleteCar,
         getCars
-    }
-    
-
-}
+    };
+};

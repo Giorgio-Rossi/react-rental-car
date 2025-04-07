@@ -6,131 +6,76 @@ export const useUser = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const apiUrl = 'http://localhost:8080/users';
-    const apiUrlSaveUser = 'http://localhost:8080/admin/edit-user';
+    const apiUrl = 'http://localhost:8080';
 
-    const getHeaders = useCallback(() => {
-        const token = localStorage.getItem('auth_token');
-        return {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        };
-    }, []);
+    const apiUrls = {
+        allUsers: `${apiUrl}/admin/users`,
+        createUser: `${apiUrl}/admin/create-user`,
+        updateUser: `${apiUrl}/admin/update-user`,
+        deleteUser: `${apiUrl}/admin/delete-user`
+    };
 
-    const updateUser = async (user) => {
+    const getHeaders = useCallback(() => ({
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+        }
+    }), []);
+
+    const getUsers = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.put(
-                `${apiUrlSaveUser}/${user.id}`,
-                user,
-                getHeaders()
-            );
+            const response = await axios.get(apiUrls.allUsers, getHeaders());
+            setUsers(response.data);
+        } catch (error) {
+            setError(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [apiUrls.allUsers, getHeaders]);
+
+    const createUser = useCallback(async (user) => {
+        setLoading(true);
+        try {
+            const response = await axios.post(apiUrls.createUser, user, getHeaders());
+            setUsers(prev => [...prev, response.data]);
+        } catch (error) {
+            setError(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [apiUrls.createUser, getHeaders]);
+
+    const updateUser = useCallback(async (user) => {
+        setLoading(true);
+        try {
+            const response = await axios.put(`${apiUrls.updateUser}/${user.id}`, user, getHeaders());
             setUsers(prev => prev.map(u => u.id === user.id ? response.data : u));
-            return response.data;
         } catch (error) {
             setError(error);
-            throw error;
         } finally {
             setLoading(false);
         }
-    };
+    }, [apiUrls.updateUser, getHeaders]);
 
-    const getUserById = async (id) => {
+    const deleteUser = useCallback(async (id) => {
         setLoading(true);
         try {
-            const response = await axios.get(
-                `${apiUrl}/${id}`,
-                getHeaders()
-            );
-            return response.data;
+            await axios.delete(`${apiUrls.deleteUser}/${id}`, getHeaders());
+            setUsers(prev => prev.filter(u => u.id !== id));
         } catch (error) {
             setError(error);
-            throw error;
         } finally {
             setLoading(false);
         }
-    };
-
-    const deleteUser = async (id) => {
-        setLoading(true);
-        try {
-            const response = await axios.delete(
-                `${apiUrl}/${id}`,
-                getHeaders()
-            );
-            setUsers(prev => prev.filter(user => user.id !== id));
-            return response.data;
-        } catch (error) {
-            setError(error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const editUser = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(
-                apiUrl,
-                getHeaders()
-            );
-            setUsers(response.data);
-            return response.data;
-        } catch (error) {
-            setError(error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getUsers = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(
-                `${apiUrl}/alluser`,
-                getHeaders()
-            );
-            setUsers(response.data);
-            return response.data;
-        } catch (error) {
-            setError(error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getUserByUsername = async (username) => {
-        setLoading(true);
-        try {
-            const response = await axios.get(
-                `${apiUrl}/get-user-by-username`,
-                {
-                    ...getHeaders(),
-                    params: { username }
-                }
-            );
-            return response.data;
-        } catch (error) {
-            setError(error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [apiUrls.deleteUser, getHeaders]);
 
     return {
         users,
         loading,
         error,
-        updateUser,
-        getUserById,
-        deleteUser,
-        editUser,
         getUsers,
-        getUserByUsername
+        createUser,
+        updateUser,
+        deleteUser
     };
 };

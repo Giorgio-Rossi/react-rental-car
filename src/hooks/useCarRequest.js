@@ -5,8 +5,9 @@ export const useCarRequest = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const apiUrl = 'http://localhost:8080'; 
 
-  const fetchRequestsBase = useCallback(async (url) => {  
+  const fetchRequestsBase = useCallback(async (url) => {
     setLoading(true);
     setError(null);
     try {
@@ -22,19 +23,17 @@ export const useCarRequest = () => {
   }, []);
 
   const fetchAdminRequests = useCallback(async () => {
-    await fetchRequestsBase('/api/requests');
-  }, [fetchRequestsBase]);
-
+    await fetchRequestsBase(`${apiUrl}/api/car-requests/all-request`);  
+  }, [fetchRequestsBase, apiUrl]);
 
   const fetchUserRequests = useCallback(async (username) => {
-    await fetchRequestsBase(`/api/requests?user=${username}`);
-  }, [fetchRequestsBase]);
-
+    await fetchRequestsBase(`${apiUrl}/api/requests?user=${username}`); 
+  }, [fetchRequestsBase, apiUrl]);
 
   const deleteRequest = useCallback(async (requestId) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/requests/${requestId}`, {
+      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, { 
         method: 'DELETE'
       });
 
@@ -45,12 +44,12 @@ export const useCarRequest = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [apiUrl]);
 
   const createRequest = useCallback(async (newRequest) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/requests', {
+      const response = await fetch(`${apiUrl}/api/requests`, {  
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -68,12 +67,12 @@ export const useCarRequest = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [apiUrl]);
 
   const updateRequest = useCallback(async (requestId, updatedData) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/requests/${requestId}`, {
+      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, { 
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -91,9 +90,7 @@ export const useCarRequest = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
-
-
+  }, [apiUrl]);
 
   return {
     requests,
@@ -104,6 +101,6 @@ export const useCarRequest = () => {
     deleteRequest,
     createRequest,
     updateRequest,
-    refreshRequests: fetchAdminRequests 
+    refreshRequests: fetchAdminRequests
   };
 };
