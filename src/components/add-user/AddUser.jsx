@@ -34,7 +34,7 @@ const AddUser = () => {
   const saveUser = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = sessionStorage.getItem('auth-token');
       const headers = {
         Authorization: `Bearer ${token}`,
       };

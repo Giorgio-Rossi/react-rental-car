@@ -15,26 +15,42 @@ export const useCar = () => {
         deleteCar: `${apiUrl}/api/cars`
     };
 
-    const getHeaders = useCallback(() => ({
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-        }
-    }), []);
+    const getHeaders = useCallback(() => {
+        const token = sessionStorage.getItem('auth-token');
+        return {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        };
+      }, []); 
 
-    const getCars = useCallback(async () => {
+      const getCars = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(apiUrls.allCars, getHeaders());
-            setCars(response.data);
-            return response.data;
+          const token = sessionStorage.getItem('auth-token');
+          if (!token) throw new Error('Token non trovato');
+      
+          const response = await axios.get(apiUrls.allCars, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          setCars(response.data);
+          return response.data;
         } catch (error) {
-            setError(error);
-            throw error;
+          setError(error);
+          if (error.response?.status === 403) {
+            sessionStorage.removeItem('auth-token');
+            window.location.reload();
+          }
+          throw error;
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    }, [apiUrls.allCars, getHeaders]);
+      }, [apiUrls.allCars]);
 
+      
     const createCar = useCallback(async (car) => {
         setLoading(true);
         try {

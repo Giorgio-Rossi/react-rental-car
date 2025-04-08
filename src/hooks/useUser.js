@@ -9,7 +9,7 @@ export const useUser = () => {
     const apiUrl = 'http://localhost:8080';
 
     const apiUrls = {
-        allUsers: `${apiUrl}/admin/users`,
+        allUsers: `${apiUrl}/users/alluser`,
         createUser: `${apiUrl}/admin/create-user`,
         updateUser: `${apiUrl}/admin/update-user`,
         deleteUser: `${apiUrl}/admin/delete-user`
@@ -17,7 +17,7 @@ export const useUser = () => {
 
     const getHeaders = useCallback(() => ({
         headers: {
-            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+            Authorization: `Bearer ${sessionStorage.getItem('auth-token')}`
         }
     }), []);
 

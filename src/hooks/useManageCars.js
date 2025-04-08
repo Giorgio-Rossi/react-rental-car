@@ -9,7 +9,7 @@ export const useManageCars = () => {
     const apiUrl = 'http://localhost:8080/api/cars';
 
     const getHeaders = useCallback(() => {
-        const token = localStorage.getItem('auth_token');
+        const token = sessionStorage.getItem('auth-token');
         return {
             headers: {
                 Authorization: `Bearer ${token}`

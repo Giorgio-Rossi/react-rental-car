@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useStorage } from '../hooks/useStorage'; 
 
 export const useCarRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { getToken } = useStorage();
 
   const apiUrl = 'http://localhost:8080'; 
 
@@ -11,8 +13,16 @@ export const useCarRequest = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(url);
+      const token = sessionStorage.getItem('auth-token');
+      
+      const response = await fetch(url, {
+          headers: {
+              'Authorization': `Bearer ${token}`
+          }
+    });
+      // const response = await fetch(url);
       if (!response.ok) throw new Error(`Failed to fetch requests from ${url}`);
+
       const data = await response.json();
       setRequests(data);
     } catch (err) {
@@ -23,7 +33,7 @@ export const useCarRequest = () => {
   }, []);
 
   const fetchAdminRequests = useCallback(async () => {
-    await fetchRequestsBase(`${apiUrl}/api/car-requests/all-request`);  
+    await fetchRequestsBase(`${apiUrl}/api/car-requests/all-requests`);  
   }, [fetchRequestsBase, apiUrl]);
 
   const fetchUserRequests = useCallback(async (username) => {
@@ -32,10 +42,14 @@ export const useCarRequest = () => {
 
   const deleteRequest = useCallback(async (requestId) => {
     try {
-      setLoading(true);
+      const token = getToken();
       const response = await fetch(`${apiUrl}/api/requests/${requestId}`, { 
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
+      setLoading(true);
 
       if (!response.ok) throw new Error('Failed to delete request');
       setRequests(prev => prev.filter(req => req.id !== requestId));

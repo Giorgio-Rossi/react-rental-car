@@ -26,7 +26,8 @@ export const useStorage = () => {
 
     const saveToken = (newToken) => {
         sessionStorage.removeItem(TOKEN_KEY)
-        sessionStorage.setItem(TOKEN_KEY, JSON.stringify(newToken))
+        sessionStorage.setItem(TOKEN_KEY, newToken)
+        localStorage.setItem(TOKEN_KEY, newToken);
         setToken(newToken);
     };
 

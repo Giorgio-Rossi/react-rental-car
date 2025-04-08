@@ -7,7 +7,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('auth_token'));
+    const [token, setToken] = useState(sessionStorage.getItem('auth-token'));
     const navigate = useNavigate();
     const apiUrl = 'http://localhost:8080';
 
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
             const { token } = response.data;
-            localStorage.setItem('auth_token', token);
+            sessionStorage.setItem('auth-token', token);
             setToken(token)
             const decoded = jwtDecode(token);
             setUser({
@@ -53,12 +53,22 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Error during logout:', error);
         } finally {
-            localStorage.removeItem('auth_token');
+            sessionStorage.removeItem('auth-token');
             setToken(null);
             setUser(null);
             navigate('login');
         }
     }
+
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'auth-token') {
+                setToken(e.newValue);
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const isLoggedIn = () => {
         return !!token; 

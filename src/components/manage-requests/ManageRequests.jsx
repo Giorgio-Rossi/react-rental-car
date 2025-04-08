@@ -17,13 +17,13 @@ const ManageRequests = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    if (user && user.role !== 'ADMIN') {
+    if (user && user.role !== 'ROLE_ADMIN') {
       console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
       return; 
     }
 
-    if (user?.role === 'ADMIN' && !dataLoaded) {
+    if (user?.role === 'ROLE_ADMIN' && !dataLoaded) {
         console.log("Caricamento dati per admin...");
         fetchAdminRequests(); 
         getUsers();         

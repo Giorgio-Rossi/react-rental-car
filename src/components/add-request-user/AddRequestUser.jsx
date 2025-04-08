@@ -41,7 +41,7 @@ export default function AddRequestUser() {
   };
 
   const onSubmit = (data) => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
     if (!currentUser?.username) {
       console.error("Errore: utente non autenticato");
       return;
@@ -62,7 +62,7 @@ export default function AddRequestUser() {
 
         axios.post('http://localhost:8080/customer/add-request', requestPayload, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+            Authorization: `Bearer ${sessionStorage.getItem('auth-token')}`
           }
         })
           .then(() => navigate('/manage-users'))
