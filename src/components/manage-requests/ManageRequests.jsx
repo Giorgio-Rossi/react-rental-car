@@ -9,7 +9,7 @@ import './manage-requests.css';
 
 const ManageRequests = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); 
+  const { user,  isLoading: authLoading } = useAuth(); 
   const { requests, fetchAdminRequests, updateRequest, loading: requestsLoading, error: requestsError } = useCarRequest();
   const { users, getUsers, loading: usersLoading, error: usersError } = useUser();
   const { cars, getCars, loading: carsLoading, error: carsError } = useCar();
@@ -17,6 +17,13 @@ const ManageRequests = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     if (user && user.role !== 'ROLE_ADMIN') {
       console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
@@ -31,7 +38,7 @@ const ManageRequests = () => {
         setDataLoaded(true);  
     }
   
-  }, [user, navigate, fetchAdminRequests, getUsers, getCars, dataLoaded]);
+  }, [user, navigate, fetchAdminRequests, getUsers, getCars, dataLoaded, authLoading]);
 
   const processedRequests = useMemo(() => {
     if (!requests || !users || !cars) {
@@ -73,7 +80,6 @@ const ManageRequests = () => {
         navigate(`/edit-request/${requestId}`, { state: { requestData: requestData } });
         return;
     } else if (action === 'Elimina') {
-        console.warn("Azione Elimina non implementata con hook.");
         return;
     }
 
@@ -87,7 +93,7 @@ const ManageRequests = () => {
     }
   };
 
-  const isLoading = requestsLoading || usersLoading || carsLoading;
+  const isLoading = authLoading || requestsLoading || usersLoading || carsLoading;
   const combinedError = requestsError || usersError || carsError;
 
   const tableConfig = {

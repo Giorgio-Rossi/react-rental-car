@@ -23,12 +23,14 @@ export const useStorage = () => {
         sessionStorage.setItem(USER_KEY, JSON.stringify(userData));
         setUser(userData);
     };
+    
 
     const saveToken = (newToken) => {
+        console.log(newToken.token)
         sessionStorage.removeItem(TOKEN_KEY)
-        sessionStorage.setItem(TOKEN_KEY, newToken)
-        localStorage.setItem(TOKEN_KEY, newToken);
-        setToken(newToken);
+        sessionStorage.setItem(TOKEN_KEY, newToken.token)
+        localStorage.setItem(TOKEN_KEY, newToken.token);
+        setToken(newToken.token);
     };
 
     const getToken = () => {

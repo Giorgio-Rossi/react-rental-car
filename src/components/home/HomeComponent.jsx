@@ -12,6 +12,7 @@ import {
     getTableAdminConfig,
     getTableCustomerConfig
 } from '../../config/home-config.js';
+
 import './home.css';
 
 const HomeComponent = () => {
@@ -58,7 +59,7 @@ const HomeComponent = () => {
         };
 
         loadData();
-    }, [user, memoizedGetCars, memoizedGetUsers, memoizedFetchAdminRequests, memoizedFetchUserRequests]); 
+    }, [user, memoizedGetCars, memoizedFetchAdminRequests, memoizedFetchUserRequests]); 
 
     const handleActionClick = async (action, row) => {
         if (action === 'Modifica') {
@@ -96,15 +97,16 @@ const HomeComponent = () => {
         return <div>Loading...</div>;
     }
 
+
     return (
         <div className="home-container">
-            {user?.role && (
+            {/* {user?.role && ( */}
                 <Navbar
                     buttons={currentButtonConfigs}
                     onButtonClick={handleNavButtonClick}
                     username={user?.username}
                 />
-            )}
+            {/* )} */}
 
             <Table
                 config={currentTableConfig}

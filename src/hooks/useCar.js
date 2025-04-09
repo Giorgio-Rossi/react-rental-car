@@ -40,10 +40,9 @@ export const useCar = () => {
           return response.data;
         } catch (error) {
           setError(error);
-          if (error.response?.status === 403) {
-            sessionStorage.removeItem('auth-token');
-            window.location.reload();
-          }
+          // if (error.response?.status === 403) {
+          //   sessionStorage.removeItem('auth-token');
+          // }
           throw error;
         } finally {
           setLoading(false);

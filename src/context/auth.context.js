@@ -8,42 +8,62 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(sessionStorage.getItem('auth-token'));
-    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true); 
     const apiUrl = 'http://localhost:8080';
+    const navigate = useNavigate(); 
 
     useEffect(() => {
+        const initializeUser = () => {
+            const storedToken = sessionStorage.getItem('auth-token');
+            if (storedToken) {
+                try {
+                    const decoded = jwtDecode(storedToken);
+                    setUser({
+                        id: decoded.id,
+                        username: decoded.sub,
+                        email: decoded.email,
+                        role: decoded.role
+                    });
+                } catch (error) {
+                    console.error("Errore nella decodifica del token:", error);
+                    sessionStorage.removeItem('auth-token'); 
+                    setToken(null);
+                    setUser(null);
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                setIsLoading(false);
+            }
+        };
 
-        if (token) {
-            const decoded = jwtDecode(token);
-            setUser({
-                id: decoded.id,
-                username: decoded.sub,
-                email: decoded.email,
-                role: decoded.role
-            })
-        }
-    }, [token]);
+        initializeUser();
+    }, []);
 
     const login = async (username, password) => {
+        setIsLoading(true); 
         try {
             const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
             const { token } = response.data;
             sessionStorage.setItem('auth-token', token);
-            setToken(token)
+            setToken(token);
             const decoded = jwtDecode(token);
             setUser({
                 id: decoded.id,
                 username: decoded.sub,
                 email: decoded.email,
                 role: decoded.role
-            })
+            });
             return response.data;
         } catch (error) {
             throw (error);
+        } finally {
+            setIsLoading(false); 
         }
     };
 
     const logout = async () => {
+        setIsLoading(true); 
         try {
             if (token) {
                 await axios.delete(`${apiUrl}/auth/logout`, {
@@ -56,7 +76,8 @@ export const AuthProvider = ({ children }) => {
             sessionStorage.removeItem('auth-token');
             setToken(null);
             setUser(null);
-            navigate('login');
+            navigate('/login'); 
+            setIsLoading(false); 
         }
     }
 
@@ -64,14 +85,33 @@ export const AuthProvider = ({ children }) => {
         const handleStorageChange = (e) => {
             if (e.key === 'auth-token') {
                 setToken(e.newValue);
+                const storedToken = e.newValue;
+                if (storedToken) {
+                    try {
+                        const decoded = jwtDecode(storedToken);
+                        setUser({
+                            id: decoded.id,
+                            username: decoded.sub,
+                            email: decoded.email,
+                            role: decoded.role
+                        });
+                    } catch (error) {
+                        console.error("Errore nella decodifica del token (storage change):", error);
+                        sessionStorage.removeItem('auth-token');
+                        setToken(null);
+                        setUser(null);
+                    }
+                } else {
+                    setUser(null);
+                }
             }
         };
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
+    }, [navigate]);
 
     const isLoggedIn = () => {
-        return !!token; 
+        return !!token;
     }
 
     const getUserType = () => {
@@ -87,19 +127,6 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    // const refreshToken = async () => {
-    //     try {
-    //         const response = await axios.post(`${apiUrl}/auth/refresh`, {});
-    //         const { token } = response.data;
-    //         setToken(token)
-    //         localStorage.setItem('auth_token', token);
-    //         return token;
-    //     } catch (error) {
-    //         logout();
-    //         throw error;
-    //     }
-    // }
-
     const value = {
         user,
         token,
@@ -107,8 +134,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         isLoggedIn,
         getUserType,
-        // refreshToken
-    };
+        isLoading 
+        };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

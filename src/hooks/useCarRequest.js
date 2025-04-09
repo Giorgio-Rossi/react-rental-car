@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useStorage } from '../hooks/useStorage'; 
 
 export const useCarRequest = () => {
@@ -13,8 +13,7 @@ export const useCarRequest = () => {
     setLoading(true);
     setError(null);
     try {
-      const token = sessionStorage.getItem('auth-token');
-      
+      const token = sessionStorage.getItem('auth-token')
       const response = await fetch(url, {
           headers: {
               'Authorization': `Bearer ${token}`

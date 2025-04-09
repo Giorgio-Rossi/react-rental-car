@@ -8,8 +8,12 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
     const [currentPage, setCurrentPage] = useState(config.pagination?.currentPage || 1);
     const itemsPerPage = config.pagination?.itemsPerPage || 10; 
 
+    const transformedData = useMemo(() => {
+        return data?.map(item => ({ ...item })) || [];
+    }, [data]);
+
     const filteredData = useMemo(() => {
-        let result = data ? [...data] : []; 
+      let result = transformedData;
 
         if (Object.keys(filters).length > 0) {
             result = result.filter(row => {
@@ -37,7 +41,7 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
          }
 
         return result;
-    }, [data, filters, orderBy, config.headers]); 
+    }, [transformedData, filters, orderBy]); 
 
     const paginatedData = useMemo(() => {
         if (!filteredData) return [];
