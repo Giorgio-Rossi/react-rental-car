@@ -1,16 +1,17 @@
 import axios, { Axios } from "axios";
 import { useAuth } from "./auth.context";
 
-const api = axios.create({
-    baseURL: 'http://localhost:8080',
+const axiosIstance = axios.create({ 
+    baseURL: 'http://localhost',
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-api.interceptors.request.use(
+axiosIstance.interceptors.request.use(
     (config) => {
-        const token = sassionStorage.getItem('auth-token');
+
+        const token = sessionStorage.getItem('auth-token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -19,3 +20,5 @@ api.interceptors.request.use(
         return Promise.reject(error)
     }
 )
+
+export default axiosIstance;

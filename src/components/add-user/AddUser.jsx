@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import './AddUser.css';
+import axiosIstance from '../../context/axiosInterceptor';
 
 const AddUser = () => {
   const navigate = useNavigate();
@@ -34,15 +35,11 @@ const AddUser = () => {
   const saveUser = async (e) => {
     e.preventDefault();
     try {
-      const token = sessionStorage.getItem('auth-token');
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
 
       user.created_at = new Date();
       user.updated_at = new Date();
 
-      await axios.post(`${apiUrl}/add-user`, user, { headers });
+      await axiosIstance.post(`${apiUrl}/add-user`, user);
       navigate('/manage-users');
     } catch (error) {
       console.error('Errore nel salvataggio dell\'utente:', error);

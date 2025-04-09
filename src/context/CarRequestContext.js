@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import axiosIstance from "./axiosInterceptor";
 
 export const useCarRequest = () => {
     const [request, setRequest] = useState([]);
@@ -14,14 +15,6 @@ export const useCarRequest = () => {
         base: `${apiUrl}/api/car-requests`
     }
 
-    const getHeaders = useCallback(() => {
-        const token = sessionStorage.getItem('auth-token');
-        return {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        };
-    }, []);
 
     const createRequest = async (request) => {
         setLoading(true)
@@ -31,10 +24,9 @@ export const useCarRequest = () => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             }
-            const response = await axios.post(
+            const response = await axiosIstance.post(
                 `${endpoints.customer}/add-request`,
-                payload,
-                getHeaders()
+                payload
             )
             setRequest(prev => [...prev, response.data])
             return response.data;
@@ -51,10 +43,9 @@ export const useCarRequest = () => {
         setLoading(true);
         try {
             const backendStatus = status.toUpperCase().replace(' ', '_');
-            const response = await axios.put(
+            const response = await axiosIstance.put(
                 `${endpoints.adminManage}/${id}`,
                 { status: backendStatus },
-                getHeaders()
             );
             setRequests(prev => prev.map(req =>
                 req.id === id ? { ...req, status: response.data.status } : req
@@ -71,10 +62,9 @@ export const useCarRequest = () => {
     const updateRequest = async (request) => {
         setLoading(true);
         try {
-            const response = await axios.put(
+            const response = await axiosIstance.put(
                 `${endpoints.base}/update-request/${request.id}`,
-                request,
-                getHeaders()
+                request
             );
             setRequests(prev => prev.map(req =>
                 req.id === request.id ? response.data : req
@@ -92,7 +82,7 @@ export const useCarRequest = () => {
     const deleteRequest = async (id) => {
         setLoading(true);
         try {
-            await axios.delete(`${endpoints.base}/${id}`, getHeaders());
+            await axiosIstance.delete(`${endpoints.base}/${id}`);
             setRequests(prev => prev.filter(req => req.id !== id));
         } catch (error) {
             setError(error);
@@ -105,7 +95,7 @@ export const useCarRequest = () => {
     const getRequests = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(endpoints.allRequests, getHeaders());
+            const response = await axiosIstance.get(endpoints.allRequests);
             setRequests(response.data);
             return response.data;
         } catch (error) {
@@ -114,15 +104,14 @@ export const useCarRequest = () => {
         } finally {
             setLoading(false);
         }
-    }, [endpoints.allRequests, getHeaders]);
+    }, [endpoints.allRequests]);
 
     const getRequestsByUsername = async (username) => {
         setLoading(true);
         try {
-            const response = await axios.get(
+            const response = await axiosIstance.get(
                 `${endpoints.base}/get-request-by-username`,
                 {
-                    ...getHeaders(),
                     params: { username }
                 }
             );
@@ -140,9 +129,8 @@ export const useCarRequest = () => {
 
     const getLastRequestId = async () => {
         try {
-            const response = await axios.get(
+            const response = await axiosIstance.get(
                 `${endpoints.base}/last-request-id`,
-                getHeaders()
             );
             return response.data;
         } catch (error) {

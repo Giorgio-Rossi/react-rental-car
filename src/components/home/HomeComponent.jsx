@@ -48,6 +48,9 @@ const HomeComponent = () => {
                     memoizedGetUsers()
                 ]);
 
+                console.log("Cars:", cars);
+                console.log("Users:", users);
+
                 if (user.role === 'ROLE_ADMIN') {
                     await memoizedFetchAdminRequests();
                 } else if (user.username) {
@@ -83,16 +86,22 @@ const HomeComponent = () => {
 
     const tableData = useCallback(() => {
         if (!requests || !users || !cars) return [];
-
-        return requests.map(request => ({
-            ...request,
-            fullName: users.find(u => u.id === request.userId)?.fullName || 'Sconosciuto',
-            start_reservation: formatDate(request.startReservation),
-            end_reservation: formatDate(request.endReservation),
-            carDetails: getCarDetails(request.carId, cars)
-        }));
+    
+        return requests.map(request => {
+            console.log("Current Request:", request);
+            console.log("Users in map:", users);
+            console.log("Cars in map:", cars);
+            const fullName = users.find(u => u.id === request.userId)?.fullName || 'Sconosciuto';
+            const carDetails = getCarDetails(request.carId, cars);
+            return {
+                ...request,
+                fullName,
+                start_reservation: formatDate(request.startReservation),
+                end_reservation: formatDate(request.endReservation),
+                carDetails
+            };
+        });
     }, [requests, users, cars]);
-
     if (loading) {
         return <div>Loading...</div>;
     }

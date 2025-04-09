@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './add-request-user.css'
+import axiosIstance from '../../context/axiosInterceptor';
 
 export default function AddRequestUser() {
   const navigate = useNavigate();
@@ -12,8 +13,19 @@ export default function AddRequestUser() {
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
+  const formatDateTime = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    const pad = (n) => n.toString().padStart(2, '0');
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+      `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.0`;
+  };
+
   const startReservation = watch('start_reservation');
   const endReservation = watch('end_reservation');
+
+  const formattedStart = formatDateTime(startReservation);
+  const formattedEnd = formatDateTime(endReservation);
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -22,18 +34,21 @@ export default function AddRequestUser() {
       setCurrentUserID(currentUser.id);
     }
 
-    axios.get('http://localhost:8080/cars/available')
-      .then(res => setAvailableCars(res.data))
-      .catch(err => console.error(err));
+    const token = sessionStorage.getItem('auth-token');
   }, []);
+
 
   const fetchAvailableCars = () => {
     if (startReservation && endReservation) {
-      axios.get(`http://localhost:8080/cars/available-by-date`, {
+      // const token = sessionStorage.getItem('auth-token');
+      axiosIstance.get('http://localhost:8080/api/car-requests/available-cars', {
         params: {
-          start: startReservation,
-          end: endReservation
-        }
+          start: formattedStart,
+          end: formattedEnd
+        },
+        // headers: {
+        //   Authorization: `Bearer ${token}`
+        // }
       })
         .then(res => setAvailableCars(res.data))
         .catch(err => console.error('Errore nel recupero auto disponibili:', err));
@@ -70,6 +85,7 @@ export default function AddRequestUser() {
       })
       .catch(err => console.error('Errore nel recupero utente:', err));
   };
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

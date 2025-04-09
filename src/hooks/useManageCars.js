@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import axiosIstance from '../context/axiosInterceptor';
 
 export const useManageCars = () => {
     const [cars, setCars] = useState([]);
@@ -8,19 +9,10 @@ export const useManageCars = () => {
 
     const apiUrl = 'http://localhost:8080/api/cars';
 
-    const getHeaders = useCallback(() => {
-        const token = sessionStorage.getItem('auth-token');
-        return {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        };
-    }, []);
-
     const getAllCars = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/allcars`, getHeaders());
+            const response = await axiosIstance.get(`${apiUrl}/allcars`);
             setCars(response.data);
             return response.data;
         } catch (err) {
@@ -29,12 +21,12 @@ export const useManageCars = () => {
         } finally {
             setLoading(false);
         }
-    }, [apiUrl, getHeaders]);
+    }, [apiUrl]);
 
     const getCarById = useCallback(async (id) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/${id}`, getHeaders());
+            const response = await axiosIstance.get(`${apiUrl}/${id}`);
             return response.data;
         } catch (err) {
             setError(err);
@@ -42,15 +34,14 @@ export const useManageCars = () => {
         } finally {
             setLoading(false);
         }
-    }, [apiUrl, getHeaders]);
+    }, [apiUrl]);
 
     const updateCar = useCallback(async (id, updatedCar) => {
         setLoading(true);
         try {
-            const response = await axios.put(
+            const response = await axiosIstance.put(
                 `${apiUrl}/${id}`,
-                updatedCar,
-                getHeaders()
+                updatedCar
             );
             setCars(prev => prev.map(car =>
                 car.id === id ? response.data : car
@@ -62,13 +53,12 @@ export const useManageCars = () => {
         } finally {
             setLoading(false);
         }
-    }, [apiUrl, getHeaders]);
+    }, [apiUrl]);
 
     const getAvailableCarsByDate = useCallback(async (startDate, endDate) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/available-cars`, {
-                ...getHeaders(),
+            const response = await axiosIstance.get(`${apiUrl}/available-cars`, {
                 params: { startDate, endDate }
             });
             return response.data;
@@ -78,12 +68,12 @@ export const useManageCars = () => {
         } finally {
             setLoading(false);
         }
-    }, [apiUrl, getHeaders]);
+    }, [apiUrl]);
 
     const getAvailableCars = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/allcars`, getHeaders());
+            const response = await axiosIstance.get(`${apiUrl}/allcars`);
             return response.data;
         } catch (err) {
             setError(err);
@@ -91,7 +81,7 @@ export const useManageCars = () => {
         } finally {
             setLoading(false);
         }
-    }, [apiUrl, getHeaders]);
+    }, [apiUrl]);
 
     useEffect(() => {
         getAllCars();

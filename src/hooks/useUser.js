@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
+import axiosIstance from '../context/axiosInterceptor';
 
 export const useUser = () => {
     const [users, setUsers] = useState([]);
@@ -15,59 +16,54 @@ export const useUser = () => {
         deleteUser: `${apiUrl}/admin/delete-user`
     };
 
-    const getHeaders = useCallback(() => ({
-        headers: {
-            Authorization: `Bearer ${sessionStorage.getItem('auth-token')}`
-        }
-    }), []);
-
     const getUsers = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(apiUrls.allUsers, getHeaders());
+            const response = await axiosIstance.get(apiUrls.allUsers);
+            console.log(response.data)
             setUsers(response.data);
         } catch (error) {
             setError(error);
         } finally {
             setLoading(false);
         }
-    }, [apiUrls.allUsers, getHeaders]);
+    }, [apiUrls.allUsers]);
 
     const createUser = useCallback(async (user) => {
         setLoading(true);
         try {
-            const response = await axios.post(apiUrls.createUser, user, getHeaders());
+            const response = await axiosIstance.post(apiUrls.createUser, user);
             setUsers(prev => [...prev, response.data]);
         } catch (error) {
             setError(error);
         } finally {
             setLoading(false);
         }
-    }, [apiUrls.createUser, getHeaders]);
+    }, [apiUrls.createUser]);
 
     const updateUser = useCallback(async (user) => {
         setLoading(true);
         try {
-            const response = await axios.put(`${apiUrls.updateUser}/${user.id}`, user, getHeaders());
+            const response = await axiosIstance.put(`${apiUrls.updateUser}/${user.id}`, user);
             setUsers(prev => prev.map(u => u.id === user.id ? response.data : u));
         } catch (error) {
             setError(error);
         } finally {
             setLoading(false);
         }
-    }, [apiUrls.updateUser, getHeaders]);
+    }, [apiUrls.updateUser]);
 
     const deleteUser = useCallback(async (id) => {
         setLoading(true);
         try {
-            await axios.delete(`${apiUrls.deleteUser}/${id}`, getHeaders());
+            await axiosIstance.delete(`${apiUrls.deleteUser}/${id}`);
             setUsers(prev => prev.filter(u => u.id !== id));
         } catch (error) {
             setError(error);
         } finally {
             setLoading(false);
         }
-    }, [apiUrls.deleteUser, getHeaders]);
+    }, [apiUrls.deleteUser]);
 
     return {
         users,
