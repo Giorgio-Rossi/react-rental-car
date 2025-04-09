@@ -7,7 +7,7 @@ export const getTableAdminConfig = () => ({
   ],
   currentByDefault: { key: 'id', orderby: 'asc' },
   pagination: { itemsPerPage: 10, currentPage: 1 },
-  actions: { 
+  actions: {
     actions: [
       {
         name: 'Modifica',
@@ -16,8 +16,8 @@ export const getTableAdminConfig = () => ({
       {
         name: 'Cancella',
         visible: (row) => true
-      } 
-    ] 
+      }
+    ]
   }
 });
 
@@ -42,7 +42,7 @@ export const getTableCustomerConfig = (canEditRequest) => ({
 
 export function getButtonConfigsAdmin() {
   return [
-    { label: 'Home', path: '/home' }, 
+    { label: 'Home', path: '/home' },
     { label: 'Gestisci richieste', path: '/manage-requests' },
     { label: 'Gestisci auto', path: '/manage-cars' },
     { label: 'Aggiungi auto', path: '/add-car' },
@@ -53,7 +53,7 @@ export function getButtonConfigsAdmin() {
 
 export function getButtonConfigsUser() {
   return [
-    { label: 'Home', path: '/home' }, 
+    { label: 'Home', path: '/home' },
     { label: 'Aggiungi richieste di prenotazione', path: '/new-request' },
   ];
 }

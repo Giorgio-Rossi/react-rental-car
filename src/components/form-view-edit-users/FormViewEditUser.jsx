@@ -103,7 +103,7 @@ const FormViewEditUser = () => {
   return (
     <div className="edit-user-container form-container">
       <h3>Modifica Utente</h3>
-      {error && <p className="error-message" style={{color: 'red'}}>{error}</p>}
+      {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
 
       <form onSubmit={(e) => e.preventDefault()}>
         {objectKeys(userData)
@@ -139,14 +139,14 @@ const FormViewEditUser = () => {
         </div>
 
         <div className="form-actions">
-            <Button
-              config={{ label: 'Salva' }}
-              onClick={handleSaveChanges}
-            />
-            <Button
-              config={{ label: 'Chiudi' }}
-              onClick={handleClose}
-            />
+          <Button
+            config={{ label: 'Salva' }}
+            onClick={handleSaveChanges}
+          />
+          <Button
+            config={{ label: 'Chiudi' }}
+            onClick={handleClose}
+          />
         </div>
       </form>
     </div>

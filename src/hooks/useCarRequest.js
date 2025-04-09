@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useStorage } from '../hooks/useStorage'; 
+import { useStorage } from '../hooks/useStorage';
 
 export const useCarRequest = () => {
   const [requests, setRequests] = useState([]);
@@ -7,7 +7,7 @@ export const useCarRequest = () => {
   const [error, setError] = useState(null);
   const { getToken } = useStorage();
 
-  const apiUrl = 'http://localhost:8080'; 
+  const apiUrl = 'http://localhost:8080';
 
   const fetchRequestsBase = useCallback(async (url) => {
     setLoading(true);
@@ -15,11 +15,10 @@ export const useCarRequest = () => {
     try {
       const token = sessionStorage.getItem('auth-token')
       const response = await fetch(url, {
-          headers: {
-              'Authorization': `Bearer ${token}`
-          }
-    });
-      // const response = await fetch(url);
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error(`Failed to fetch requests from ${url}`);
 
       const data = await response.json();
@@ -32,17 +31,17 @@ export const useCarRequest = () => {
   }, []);
 
   const fetchAdminRequests = useCallback(async () => {
-    await fetchRequestsBase(`${apiUrl}/api/car-requests/all-requests`);  
+    await fetchRequestsBase(`${apiUrl}/api/car-requests/all-requests`);
   }, [fetchRequestsBase, apiUrl]);
 
   const fetchUserRequests = useCallback(async (username) => {
-    await fetchRequestsBase(`${apiUrl}/api/requests?user=${username}`); 
+    await fetchRequestsBase(`${apiUrl}/api/requests?user=${username}`);
   }, [fetchRequestsBase, apiUrl]);
 
   const deleteRequest = useCallback(async (requestId) => {
     try {
       const token = getToken();
-      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, { 
+      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -62,7 +61,7 @@ export const useCarRequest = () => {
   const createRequest = useCallback(async (newRequest) => {
     try {
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/requests`, {  
+      const response = await fetch(`${apiUrl}/api/requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -85,7 +84,7 @@ export const useCarRequest = () => {
   const updateRequest = useCallback(async (requestId, updatedData) => {
     try {
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, { 
+      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'

@@ -1,47 +1,47 @@
 import React, { useState, useMemo } from 'react';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
-import './table.css'; 
+import './table.css';
 export function Table({ config, data, onOrderChange, onFilterChange, onActionClick }) {
     const [filters, setFilters] = useState({});
     const [orderBy, setOrderBy] = useState(config.currentByDefault || {});
     const [currentPage, setCurrentPage] = useState(config.pagination?.currentPage || 1);
-    const itemsPerPage = config.pagination?.itemsPerPage || 10; 
+    const itemsPerPage = config.pagination?.itemsPerPage || 10;
 
     const transformedData = useMemo(() => {
         return data?.map(item => ({ ...item })) || [];
     }, [data]);
 
     const filteredData = useMemo(() => {
-      let result = transformedData;
+        let result = transformedData;
 
         if (Object.keys(filters).length > 0) {
             result = result.filter(row => {
                 return Object.entries(filters).every(([key, value]) => {
                     if (!value) return true;
                     const cellValue = row[key] !== undefined && row[key] !== null ? String(row[key]).toLowerCase() : '';
-                    return cellValue.includes(String(value).toLowerCase()); 
+                    return cellValue.includes(String(value).toLowerCase());
                 });
             });
         }
 
         if (orderBy && orderBy.key && config.headers.find(h => h.key === orderBy.key)?.ordinable) {
-             result.sort((a, b) => {
-                 const aValue = a[orderBy.key];
-                 const bValue = b[orderBy.key];
+            result.sort((a, b) => {
+                const aValue = a[orderBy.key];
+                const bValue = b[orderBy.key];
 
-                 if (aValue == null && bValue == null) return 0;
-                 if (aValue == null) return 1;
-                 if (bValue == null) return -1;
+                if (aValue == null && bValue == null) return 0;
+                if (aValue == null) return 1;
+                if (bValue == null) return -1;
 
-                 const comparison = aValue > bValue ? 1 : (aValue < bValue ? -1 : 0);
+                const comparison = aValue > bValue ? 1 : (aValue < bValue ? -1 : 0);
 
-                 return orderBy.orderby === 'asc' ? comparison : -comparison;
-             });
-         }
+                return orderBy.orderby === 'asc' ? comparison : -comparison;
+            });
+        }
 
         return result;
-    }, [transformedData, filters, orderBy]); 
+    }, [transformedData, filters, orderBy]);
 
     const paginatedData = useMemo(() => {
         if (!filteredData) return [];
@@ -53,21 +53,21 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
 
     const handleOrder = (key) => {
         const columnConfig = config.headers.find(h => h.key === key);
-        if (!columnConfig || !columnConfig.ordinable) return; 
+        if (!columnConfig || !columnConfig.ordinable) return;
 
         const newOrderBy = {
             key,
             orderby: orderBy?.key === key && orderBy.orderby === 'asc' ? 'desc' : 'asc'
         };
         setOrderBy(newOrderBy);
-        onOrderChange?.(newOrderBy); 
+        onOrderChange?.(newOrderBy);
     };
 
     const handleFilterChange = (key, value) => {
         const newFilters = { ...filters, [key]: value };
         setFilters(newFilters);
-        onFilterChange?.(key, value); 
-        setCurrentPage(1); 
+        onFilterChange?.(key, value);
+        setCurrentPage(1);
     };
 
     const getSortIcon = (key) => {
@@ -78,7 +78,7 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
 
     const renderCellValue = (row, column) => {
         const value = row[column.key];
-        if (value === undefined || value === null) return '-'; 
+        if (value === undefined || value === null) return '-';
 
         switch (column.type) {
             case 'Date':
@@ -89,7 +89,7 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
                     return 'Data non valida';
                 }
             case 'Number':
-                 return String(value);
+                return String(value);
             default:
                 return String(value);
         }
@@ -117,10 +117,10 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
             }
         }
 
-        let l; 
-                for (let i of range) {
+        let l;
+        for (let i of range) {
             if (l) {
-                if (i - l === 2) { 
+                if (i - l === 2) {
                     rangeWithDots.push(l + 1);
                 } else if (i - l !== 1) {
                     rangeWithDots.push('...');
@@ -138,7 +138,7 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
 
     return (
         <div className="table-container">
-            <table className="table"> 
+            <table className="table">
                 <thead>
                     <tr>
                         {config.headers.map(column => (
@@ -161,10 +161,10 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
                                         type="text"
                                         value={filters[column.key] || ''}
                                         onChange={(e) => handleFilterChange(column.key, e.target.value)}
-                                        onClick={(e) => e.stopPropagation()} 
+                                        onClick={(e) => e.stopPropagation()}
                                         placeholder={`Filtra...`}
                                         className="filter-input"
-                                        style={{ marginTop: '5px', width: 'calc(100% - 10px)' }} 
+                                        style={{ marginTop: '5px', width: 'calc(100% - 10px)' }}
                                     />
                                 )}
                             </th>
@@ -175,11 +175,11 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
 
                 <tbody>
                     {paginatedData.length === 0 ? (
-                         <tr>
-                             <td colSpan={hasActions ? config.headers.length + 1 : config.headers.length} style={{ textAlign: 'center' }}>
-                                 Nessun dato trovato.
-                             </td>
-                         </tr>
+                        <tr>
+                            <td colSpan={hasActions ? config.headers.length + 1 : config.headers.length} style={{ textAlign: 'center' }}>
+                                Nessun dato trovato.
+                            </td>
+                        </tr>
                     ) : (
                         paginatedData.map((row, rowIndex) => (
                             <tr key={row.id || rowIndex}>
@@ -223,14 +223,14 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
                         page === '...' ? (
                             <span key={`dots-${index}`} style={{ padding: '5px 10px' }}>...</span>
                         ) : (
-                        <span
-                            key={page}
-                            onClick={() => changePage(page)}
-                            className={page === currentPage ? 'active' : ''}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            {page}
-                        </span>
+                            <span
+                                key={page}
+                                onClick={() => changePage(page)}
+                                className={page === currentPage ? 'active' : ''}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {page}
+                            </span>
                         )
                     ))}
 

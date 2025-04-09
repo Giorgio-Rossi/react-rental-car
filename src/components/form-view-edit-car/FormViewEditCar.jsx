@@ -7,21 +7,21 @@ import './form-view-edit-car.css';
 
 const FormViewEditCar = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); 
+  const { id } = useParams();
   const location = useLocation();
   const { user: loggedInUser } = useAuth();
   const { updateCar, getCar } = useCar();
 
   const [carData, setCarData] = useState(null);
-  const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(null); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [title, setTitle] = useState('Dettagli auto');
   const statusOptions = ['Disponibile', 'Non disponibile', 'In manutenzione'];
 
   useEffect(() => {
     if (loggedInUser && loggedInUser.role !== 'ROLE_ADMIN') {
       navigate('/home');
-      return; 
+      return;
     }
 
     const loadCarData = async () => {
@@ -37,7 +37,7 @@ const FormViewEditCar = () => {
         console.log("Nessun dato auto nello stato di navigazione, caricamento tramite ID:", id);
         try {
           if (id) {
-            const fetchedCar = await getCar(id); 
+            const fetchedCar = await getCar(id);
             if (fetchedCar) {
               setCarData(fetchedCar);
             } else {
@@ -56,10 +56,10 @@ const FormViewEditCar = () => {
     };
 
     if (loggedInUser) {
-        loadCarData();
+      loadCarData();
     }
 
-  }, [loggedInUser, navigate, id, getCar, location.state]); 
+  }, [loggedInUser, navigate, id, getCar, location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,31 +71,31 @@ const FormViewEditCar = () => {
 
   const handleSaveChanges = async () => {
     if (carData) {
-      setError(null); 
+      setError(null);
       try {
-        await updateCar(carData); 
+        await updateCar(carData);
         console.log("Auto aggiornata con successo.");
-        navigate('/manage-cars'); 
+        navigate('/manage-cars');
       } catch (error) {
         console.error('Errore durante l\'aggiornamento dell\'auto:', error);
-        setError(error.message || 'Errore durante il salvataggio.'); 
+        setError(error.message || 'Errore durante il salvataggio.');
       }
     }
   };
 
   const handleClose = () => {
-    navigate('/manage-cars'); 
+    navigate('/manage-cars');
   };
 
   const objectKeys = (obj) => {
-    return Object.keys(obj || {}); 
+    return Object.keys(obj || {});
   };
 
   if (loading) {
     return <div className="form-container">Caricamento dati auto...</div>;
   }
 
-  if (error && !carData) { 
+  if (error && !carData) {
     return (
       <div className="form-container error-message">
         <h3>Errore</h3>
@@ -124,7 +124,7 @@ const FormViewEditCar = () => {
                 type="text"
                 id={key}
                 name={key}
-                value={carData[key] || ''} 
+                value={carData[key] || ''}
                 onChange={handleChange}
               />
             </div>
@@ -135,7 +135,7 @@ const FormViewEditCar = () => {
           <select
             id="status"
             name="status"
-            value={carData.status} 
+            value={carData.status}
             onChange={handleChange}
           >
             {statusOptions.map(status => (

@@ -5,7 +5,7 @@ import './navbar.css';
 
 const Navbar = ({ buttons = [], onButtonClick, username }) => {
   const navigate = useNavigate();
-  const { logout } = useAuth(); 
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -18,7 +18,7 @@ const Navbar = ({ buttons = [], onButtonClick, username }) => {
         {buttons.map((button, index) => (
           <button
             key={index}
-            onClick={() => onButtonClick(button.path)} 
+            onClick={() => onButtonClick(button.path)}
           >
             {button.label}
           </button>
@@ -29,7 +29,7 @@ const Navbar = ({ buttons = [], onButtonClick, username }) => {
       {username && (
         <div className="navbar-user">
           <span>Benvenuto, {username}</span>
- 
+
           <button onClick={handleLogout}>
             Logout
           </button>

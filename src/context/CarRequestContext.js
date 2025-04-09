@@ -76,7 +76,7 @@ export const useCarRequest = () => {
                 request,
                 getHeaders()
             );
-            setRequests(prev => prev.map(req => 
+            setRequests(prev => prev.map(req =>
                 req.id === request.id ? response.data : req
             ));
             return response.data;
@@ -134,7 +134,7 @@ export const useCarRequest = () => {
             setLoading(false);
         }
     };
-  const canEditRequest = (row) => {
+    const canEditRequest = (row) => {
         return row.status !== 'Annullata';
     };
 

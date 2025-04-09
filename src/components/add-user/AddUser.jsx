@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../hooks/useAuth'; 
-import './AddUser.css'; 
+import { useAuth } from '../../hooks/useAuth';
+import './AddUser.css';
 
 const AddUser = () => {
   const navigate = useNavigate();
-  const { user: loggedInUser } = useAuth(); 
+  const { user: loggedInUser } = useAuth();
   const [user, setUser] = useState({
     id: 0,
     username: '',
     fullName: '',
     email: '',
-    role: 'ROLE_USER', 
+    role: 'ROLE_USER',
     password: '',
     created_at: new Date(),
     updated_at: new Date(),
@@ -21,7 +21,7 @@ const AddUser = () => {
 
   useEffect(() => {
     if (loggedInUser?.role !== 'ROLE_ADMIN') {
-      navigate('/home'); 
+      navigate('/home');
     }
   }, [loggedInUser, navigate]);
 

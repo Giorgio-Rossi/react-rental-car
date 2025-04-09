@@ -20,7 +20,7 @@ export interface OrderBy {
 
 export interface PaginationConfig {
     itemsPerPage: number;
-    currentPage: number; 
+    currentPage: number;
 }
 
 export interface ActionsConfig<T> {

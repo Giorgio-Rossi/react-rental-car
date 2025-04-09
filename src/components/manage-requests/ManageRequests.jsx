@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useCarRequest } from '../../hooks/useCarRequest';
 import { useUser } from '../../hooks/useUser';
 import { useCar } from '../../hooks/useCar';
-import { useAuth } from '../../hooks/useAuth'; 
+import { useAuth } from '../../hooks/useAuth';
 
 import './manage-requests.css';
 
 const ManageRequests = () => {
   const navigate = useNavigate();
-  const { user,  isLoading: authLoading } = useAuth(); 
+  const { user, isLoading: authLoading } = useAuth();
   const { requests, fetchAdminRequests, updateRequest, loading: requestsLoading, error: requestsError } = useCarRequest();
   const { users, getUsers, loading: usersLoading, error: usersError } = useUser();
   const { cars, getCars, loading: carsLoading, error: carsError } = useCar();
@@ -27,22 +27,22 @@ const ManageRequests = () => {
     if (user && user.role !== 'ROLE_ADMIN') {
       console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
-      return; 
+      return;
     }
 
     if (user?.role === 'ROLE_ADMIN' && !dataLoaded) {
-        console.log("Caricamento dati per admin...");
-        fetchAdminRequests(); 
-        getUsers();         
-        getCars();
-        setDataLoaded(true);  
+      console.log("Caricamento dati per admin...");
+      fetchAdminRequests();
+      getUsers();
+      getCars();
+      setDataLoaded(true);
     }
-  
+
   }, [user, navigate, fetchAdminRequests, getUsers, getCars, dataLoaded, authLoading]);
 
   const processedRequests = useMemo(() => {
     if (!requests || !users || !cars) {
-      return []; 
+      return [];
     }
 
     console.log("Processamento richieste...");
@@ -52,10 +52,10 @@ const ManageRequests = () => {
       if (request.carId || request.carID) {
         const carIdValue = request.carId || request.carID;
         if (Array.isArray(carIdValue)) {
-            carDetails = carIdValue.map(id => cars.find(c => c.id === id)?.licensePlate || 'ID Sconosciuto')
-                                  .filter(Boolean).join(', ') || 'Nessuna Targa';
+          carDetails = carIdValue.map(id => cars.find(c => c.id === id)?.licensePlate || 'ID Sconosciuto')
+            .filter(Boolean).join(', ') || 'Nessuna Targa';
         } else {
-            carDetails = cars.find(c => c.id === carIdValue)?.licensePlate || 'Sconosciuta';
+          carDetails = cars.find(c => c.id === carIdValue)?.licensePlate || 'Sconosciuta';
         }
       }
 
@@ -77,10 +77,10 @@ const ManageRequests = () => {
     } else if (action === 'Rifiuta') {
       newStatus = 'RIFIUTATA';
     } else if (action === 'Modifica') {
-        navigate(`/edit-request/${requestId}`, { state: { requestData: requestData } });
-        return;
+      navigate(`/edit-request/${requestId}`, { state: { requestData: requestData } });
+      return;
     } else if (action === 'Elimina') {
-        return;
+      return;
     }
 
     if (newStatus) {
@@ -97,10 +97,10 @@ const ManageRequests = () => {
   const combinedError = requestsError || usersError || carsError;
 
   const tableConfig = {
-      actions: [
-          { name: 'Approva', visible: (row) => row.status !== 'Annullata' && row.status !== 'APPROVATA' && row.status !== 'RIFIUTATA' }, 
-          { name: 'Rifiuta', visible: (row) => row.status !== 'Annullata' && row.status !== 'APPROVATA' && row.status !== 'RIFIUTATA' }, 
-      ]
+    actions: [
+      { name: 'Approva', visible: (row) => row.status !== 'Annullata' && row.status !== 'APPROVATA' && row.status !== 'RIFIUTATA' },
+      { name: 'Rifiuta', visible: (row) => row.status !== 'Annullata' && row.status !== 'APPROVATA' && row.status !== 'RIFIUTATA' },
+    ]
   };
 
   if (isLoading) {
@@ -114,7 +114,7 @@ const ManageRequests = () => {
   return (
     <div className="manage-requests-container">
       <h2>Gestione richieste</h2>
-        <table>
+      <table>
         <thead>
           <tr>
             <th>ID</th>
@@ -122,7 +122,7 @@ const ManageRequests = () => {
             <th>Auto richiesta</th>
             <th>Stato</th>
             <th>Data Inizio</th>
-            <th>Data Fine</th>   
+            <th>Data Fine</th>
             <th>Azioni</th>
           </tr>
         </thead>
@@ -138,18 +138,18 @@ const ManageRequests = () => {
                 <td>{request.endReservation ? new Date(request.endReservation).toLocaleDateString('it-IT') : '-'}</td>
                 <td>
                   {tableConfig.actions
-                      .filter(action => action.visible(request)) 
-                      .map((action) => (
-                        <button
-                           key={action.name}
-                           onClick={() => handleActionClick(action.name, request)}
-                           style={action.name === 'Approva' ? 
-                               { backgroundColor: 'green', color: 'white', marginRight: '5px' } :
-                               { backgroundColor: 'red', color: 'white' }}
-                        >
-                          {action.name}
-                        </button>
-                  ))}
+                    .filter(action => action.visible(request))
+                    .map((action) => (
+                      <button
+                        key={action.name}
+                        onClick={() => handleActionClick(action.name, request)}
+                        style={action.name === 'Approva' ?
+                          { backgroundColor: 'green', color: 'white', marginRight: '5px' } :
+                          { backgroundColor: 'red', color: 'white' }}
+                      >
+                        {action.name}
+                      </button>
+                    ))}
                 </td>
               </tr>
             ))

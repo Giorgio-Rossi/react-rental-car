@@ -8,9 +8,9 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(sessionStorage.getItem('auth-token'));
-    const [isLoading, setIsLoading] = useState(true); 
+    const [isLoading, setIsLoading] = useState(true);
     const apiUrl = 'http://localhost:8080';
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     useEffect(() => {
         const initializeUser = () => {
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
                     });
                 } catch (error) {
                     console.error("Errore nella decodifica del token:", error);
-                    sessionStorage.removeItem('auth-token'); 
+                    sessionStorage.removeItem('auth-token');
                     setToken(null);
                     setUser(null);
                 } finally {
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (username, password) => {
-        setIsLoading(true); 
+        setIsLoading(true);
         try {
             const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
             const { token } = response.data;
@@ -58,12 +58,12 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             throw (error);
         } finally {
-            setIsLoading(false); 
+            setIsLoading(false);
         }
     };
 
     const logout = async () => {
-        setIsLoading(true); 
+        setIsLoading(true);
         try {
             if (token) {
                 await axios.delete(`${apiUrl}/auth/logout`, {
@@ -76,8 +76,8 @@ export const AuthProvider = ({ children }) => {
             sessionStorage.removeItem('auth-token');
             setToken(null);
             setUser(null);
-            navigate('/login'); 
-            setIsLoading(false); 
+            navigate('/login');
+            setIsLoading(false);
         }
     }
 
@@ -134,8 +134,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         isLoggedIn,
         getUserType,
-        isLoading 
-        };
+        isLoading
+    };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

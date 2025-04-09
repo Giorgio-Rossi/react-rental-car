@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCar } from '../../hooks/useCar';
-import { useAuth } from '../../hooks/useAuth'; 
-import { Table } from '../table/table'; 
+import { useAuth } from '../../hooks/useAuth';
+import { Table } from '../table/table';
 import './manage-cars.css';
 
 const ManageCars = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   const { cars, getCars, deleteCar, loading, error } = useCar();
 
   // Effetto per il controllo dell'utente autorizzato
@@ -25,7 +25,7 @@ const ManageCars = () => {
     }
   }, [user, navigate, getCars]);  // Dipendenze: `getCars` solo quando necessario
 
-  const handleActionClick = async (action, data) => { 
+  const handleActionClick = async (action, data) => {
     if (action === 'Modifica') {
       navigate(`/edit-cars/${data.id}`, { state: { carData: data } });
     }
@@ -66,11 +66,11 @@ const ManageCars = () => {
   }
 
   return (
-    <div className="manage-cars-container"> 
+    <div className="manage-cars-container">
       <h2 className="title">Gestisci auto</h2>
       <Table
         config={tableManageCars}
-        data={cars} 
+        data={cars}
         onActionClick={({ action, row }) => handleActionClick(action, row)}
       />
     </div>

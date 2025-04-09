@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';  
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useCarRequest } from '../../hooks/useCarRequest.js';
@@ -17,7 +17,7 @@ import './home.css';
 
 const HomeComponent = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();  
+    const { user } = useAuth();
     const { cars, getCars } = useCar();
     const { users, getUsers } = useUser();
     const {
@@ -25,7 +25,7 @@ const HomeComponent = () => {
         fetchAdminRequests,
         fetchUserRequests,
         deleteRequest,
-        loading 
+        loading
     } = useCarRequest();
 
     const tableAdminConfig = getTableAdminConfig();
@@ -44,7 +44,7 @@ const HomeComponent = () => {
         const loadData = async () => {
             try {
                 await Promise.all([
-                    memoizedGetCars(),  
+                    memoizedGetCars(),
                     memoizedGetUsers()
                 ]);
 
@@ -59,7 +59,7 @@ const HomeComponent = () => {
         };
 
         loadData();
-    }, [user, memoizedGetCars, memoizedFetchAdminRequests, memoizedFetchUserRequests]); 
+    }, [user, memoizedGetCars, memoizedFetchAdminRequests, memoizedFetchUserRequests]);
 
     const handleActionClick = async (action, row) => {
         if (action === 'Modifica') {
@@ -69,7 +69,7 @@ const HomeComponent = () => {
                 await deleteRequest(row.id);
             } catch (error) {
                 console.error("Error deleting request:", error);
-               
+
             }
         }
     };
@@ -100,17 +100,17 @@ const HomeComponent = () => {
 
     return (
         <div className="home-container">
-            {/* {user?.role && ( */}
+            {user?.role && (
                 <Navbar
                     buttons={currentButtonConfigs}
                     onButtonClick={handleNavButtonClick}
                     username={user?.username}
                 />
-            {/* )} */}
+            )}
 
             <Table
                 config={currentTableConfig}
-                data={tableData()} 
+                data={tableData()}
                 onActionClick={({ action, row }) => handleActionClick(action, row)}
             />
         </div>

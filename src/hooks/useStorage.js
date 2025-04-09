@@ -26,10 +26,10 @@ export const useStorage = () => {
     
 
     const saveToken = (newToken) => {
-        console.log(newToken.token)
+        // console.log(newToken.token)
         sessionStorage.removeItem(TOKEN_KEY)
         sessionStorage.setItem(TOKEN_KEY, newToken.token)
-        localStorage.setItem(TOKEN_KEY, newToken.token);
+        // localStorage.setItem(TOKEN_KEY, newToken.token);
         setToken(newToken.token);
     };
 

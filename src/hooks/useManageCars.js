@@ -20,7 +20,7 @@ export const useManageCars = () => {
     const getAllCars = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/allcars`, getHeaders());  
+            const response = await axios.get(`${apiUrl}/allcars`, getHeaders());
             setCars(response.data);
             return response.data;
         } catch (err) {
@@ -31,24 +31,24 @@ export const useManageCars = () => {
         }
     }, [apiUrl, getHeaders]);
 
-    const getCarById = useCallback(async (id) => { 
+    const getCarById = useCallback(async (id) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/${id}`, getHeaders()); 
+            const response = await axios.get(`${apiUrl}/${id}`, getHeaders());
             return response.data;
         } catch (err) {
             setError(err);
             throw err;
-            } finally {
-                setLoading(false);
-            }
+        } finally {
+            setLoading(false);
+        }
     }, [apiUrl, getHeaders]);
 
-    const updateCar = useCallback(async (id, updatedCar) => { 
+    const updateCar = useCallback(async (id, updatedCar) => {
         setLoading(true);
         try {
             const response = await axios.put(
-                `${apiUrl}/${id}`,  
+                `${apiUrl}/${id}`,
                 updatedCar,
                 getHeaders()
             );
@@ -64,10 +64,10 @@ export const useManageCars = () => {
         }
     }, [apiUrl, getHeaders]);
 
-    const getAvailableCarsByDate = useCallback(async (startDate, endDate) => { 
+    const getAvailableCarsByDate = useCallback(async (startDate, endDate) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/available-cars`, {  
+            const response = await axios.get(`${apiUrl}/available-cars`, {
                 ...getHeaders(),
                 params: { startDate, endDate }
             });
@@ -83,7 +83,7 @@ export const useManageCars = () => {
     const getAvailableCars = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/allcars`, getHeaders()); 
+            const response = await axios.get(`${apiUrl}/allcars`, getHeaders());
             return response.data;
         } catch (err) {
             setError(err);

@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table } from '../table/table';
 import { useUser } from '../../hooks/useUser';
-import { useAuth } from '../../hooks/useAuth'; 
+import { useAuth } from '../../hooks/useAuth';
 
-import './manage-users.css'; 
+import './manage-users.css';
 
 const ManageUsers = () => {
   const navigate = useNavigate();
@@ -19,10 +19,10 @@ const ManageUsers = () => {
     }
 
     console.log("Caricamento utenti per admin...");
-    getUsers(); 
-  }, [loggedInUser, navigate, getUsers]); 
+    getUsers();
+  }, [loggedInUser, navigate, getUsers]);
 
-  const handleActionClick = async ({ action, row: userData }) => { 
+  const handleActionClick = async ({ action, row: userData }) => {
     if (action === 'Modifica') {
       navigate(`/edit-user/${userData.id}`, { state: { userData } });
     } else if (action === 'Elimina') {
@@ -67,7 +67,7 @@ const ManageUsers = () => {
 
   return (
     <div className="manage-users-container">
-      <h2 className="title">Gestisci utenti</h2> 
+      <h2 className="title">Gestisci utenti</h2>
       <Table
         config={tableManageUser}
         data={users}
