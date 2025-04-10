@@ -83,6 +83,26 @@ export const useCarRequest = () => {
     }
   }, [apiUrl]);
 
+  const updateRequestStatus = useCallback(async (requestId, newStatus) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosIstance.put(
+        `${apiUrl}/admin/manage-request/${requestId}`,
+        { status: newStatus }
+      );
+      setRequests(prev => 
+        prev.map(req => req.id === requestId ? response.data : req)
+      );
+      return response.data;
+    } catch (err) {
+      setError(err.message || 'Error updating request status');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiUrl]);
+
   return {
     requests,
     loading,
@@ -92,6 +112,7 @@ export const useCarRequest = () => {
     deleteRequest,
     createRequest,
     updateRequest,
+    updateRequestStatus,
     refreshRequests: fetchAdminRequests
   };
 };

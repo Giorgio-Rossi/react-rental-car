@@ -10,7 +10,7 @@ import './manage-requests.css';
 const ManageRequests = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
-  const { requests, fetchAdminRequests, updateRequest, loading: requestsLoading, error: requestsError } = useCarRequest();
+  const { requests, fetchAdminRequests, updateRequestStatus, loading: requestsLoading, error: requestsError } = useCarRequest();
   const { users, getUsers, loading: usersLoading, error: usersError } = useUser();
   const { cars, getCars, loading: carsLoading, error: carsError } = useCar();
 
@@ -85,8 +85,9 @@ const ManageRequests = () => {
 
     if (newStatus) {
       try {
-        await updateRequest(requestId, { status: newStatus });
+        await updateRequestStatus(requestId, newStatus);
         console.log(`Richiesta ${requestId} aggiornata a ${newStatus}`);
+        fetchAdminRequests();
       } catch (error) {
         console.error(`Errore durante l'aggiornamento dello stato a ${newStatus}:`, error);
       }
@@ -111,6 +112,7 @@ const ManageRequests = () => {
     return <div className="manage-requests-container"><p style={{ color: 'red' }}>Errore nel caricamento: {combinedError.message || 'Errore sconosciuto'}</p></div>;
   }
 
+  
   return (
     <div className="manage-requests-container">
       <h2>Gestione richieste</h2>
