@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import axiosIstance from "./axiosInterceptor";
 
 export const useCarRequest = () => {
@@ -123,6 +122,7 @@ export const useCarRequest = () => {
             setLoading(false);
         }
     };
+
     const canEditRequest = (row) => {
         return row.status !== 'Annullata';
     };
@@ -153,7 +153,6 @@ export const useCarRequest = () => {
         getRequestsByUsername,
         updateRequestStatus,
         updateRequest,
-        canEditRequest,
         getLastRequestId
     };
 }

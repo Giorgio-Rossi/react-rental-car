@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useCarRequest } from '../../hooks/useCarRequest.js';
 import { useCar } from '../../hooks/useCar.js';
 import { useUser } from '../../hooks/useUser';
@@ -28,6 +28,8 @@ const HomeComponent = () => {
         loading
     } = useCarRequest();
 
+
+
     const tableAdminConfig = getTableAdminConfig();
     const tableCustomerConfig = getTableCustomerConfig();
     const buttonConfigsAdmin = getButtonConfigsAdmin();
@@ -47,9 +49,6 @@ const HomeComponent = () => {
                     memoizedGetCars(),
                     memoizedGetUsers()
                 ]);
-
-                console.log("Cars:", cars);
-                console.log("Users:", users);
 
                 if (user.role === 'ROLE_ADMIN') {
                     await memoizedFetchAdminRequests();
@@ -88,9 +87,6 @@ const HomeComponent = () => {
         if (!requests || !users || !cars) return [];
     
         return requests.map(request => {
-            console.log("Current Request:", request);
-            console.log("Users in map:", users);
-            console.log("Cars in map:", cars);
             const fullName = users.find(u => u.id === request.userId)?.fullName || 'Sconosciuto';
             const carDetails = getCarDetails(request.carId, cars);
             return {

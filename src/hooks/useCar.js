@@ -13,7 +13,7 @@ export const useCar = () => {
         addCar: `${apiUrl}/admin/add-car`,
         allCars: `${apiUrl}/api/cars/allcars`,
         editCar: `${apiUrl}/admin/edit-car`,
-        deleteCar: `${apiUrl}/api/cars`
+        deleteCar: `${apiUrl}/api/car-requests`
     };
 
       const getCars = useCallback(async () => {

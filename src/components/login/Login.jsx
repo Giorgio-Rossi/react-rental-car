@@ -33,9 +33,10 @@ const Login = () => {
       if (data?.token) {
         const user = {
           username: data.username,
-          role: data.role || 'ROLE_CUSTOMER'
+          role: data.role // || 'ROLE_CUSTOMER'
         };
 
+        console.log("Role: ", data.role)
         saveToken(data);
         saveUser(user);
         setIsLoginFailed(false);

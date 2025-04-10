@@ -28,7 +28,7 @@ export default function AddRequestUser() {
   const formattedEnd = formatDateTime(endReservation);
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
     if (currentUser) {
       setLoggedInUser(currentUser.username);
       setCurrentUserID(currentUser.id);
@@ -40,15 +40,12 @@ export default function AddRequestUser() {
 
   const fetchAvailableCars = () => {
     if (startReservation && endReservation) {
-      // const token = sessionStorage.getItem('auth-token');
       axiosIstance.get('http://localhost:8080/api/car-requests/available-cars', {
         params: {
           start: formattedStart,
           end: formattedEnd
         },
-        // headers: {
-        //   Authorization: `Bearer ${token}`
-        // }
+    
       })
         .then(res => setAvailableCars(res.data))
         .catch(err => console.error('Errore nel recupero auto disponibili:', err));
@@ -56,17 +53,8 @@ export default function AddRequestUser() {
   };
 
   const onSubmit = (data) => {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-    if (!currentUser?.username) {
-      console.error("Errore: utente non autenticato");
-      return;
-    }
-
-    axios.get(`http://localhost:8080/users/by-username/${currentUser.username}`)
-      .then(res => {
-        const userId = res.data.id;
         const requestPayload = {
-          userID: userId,
+          userID: currentUserID,
           carID: Number(data.car_id),
           startReservation: new Date(data.start_reservation).toISOString(),
           endReservation: new Date(data.end_reservation).toISOString(),
@@ -75,15 +63,9 @@ export default function AddRequestUser() {
           updatedAt: new Date().toISOString()
         };
 
-        axios.post('http://localhost:8080/customer/add-request', requestPayload, {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem('auth-token')}`
-          }
-        })
-          .then(() => navigate('/manage-users'))
+        axiosIstance.post('http://localhost:8080/customer/add-request', requestPayload)
+          .then(() => navigate('/home'))
           .catch(err => console.error('Errore nel salvataggio:', err));
-      })
-      .catch(err => console.error('Errore nel recupero utente:', err));
   };
 
 

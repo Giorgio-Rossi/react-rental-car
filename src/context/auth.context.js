@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import axiosIstance from "./axiosInterceptor";
 
 export const AuthContext = createContext();
 
@@ -46,14 +47,19 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
             const { token } = response.data;
             sessionStorage.setItem('auth-token', token);
+
             setToken(token);
             const decoded = jwtDecode(token);
-            setUser({
+            const userData = {
                 id: decoded.id,
                 username: decoded.sub,
                 email: decoded.email,
                 role: decoded.role
-            });
+            };
+
+            sessionStorage.setItem('currentUser', JSON.stringify(userData));
+
+
             return response.data;
         } catch (error) {
             throw (error);
@@ -66,9 +72,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(true);
         try {
             if (token) {
-                await axios.delete(`${apiUrl}/auth/logout`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                await axiosIstance.delete(`${apiUrl}/auth/logout`);
             }
         } catch (error) {
             console.error('Error during logout:', error);

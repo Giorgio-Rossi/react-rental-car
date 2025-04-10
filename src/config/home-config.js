@@ -22,7 +22,7 @@ export const getTableAdminConfig = () => ({
 });
 
 
-export const getTableCustomerConfig = (canEditRequest) => ({
+export const getTableCustomerConfig = () => ({
   headers: [
     { key: 'id', columnName: 'Codice richiesta', type: 'Number', ordinable: true, filtrable: true },
     { key: 'carDetails', columnName: 'Macchina', type: 'String', ordinable: false, filtrable: true },
@@ -34,7 +34,7 @@ export const getTableCustomerConfig = (canEditRequest) => ({
   pagination: { itemsPerPage: 10, currentPage: 1 },
   actions: {
     actions: [
-      { name: 'Modifica', visible: (row) => canEditRequest(row) },
+      { name: 'Modifica', visible: () => true },
       { name: 'Cancella', visible: () => true }
     ]
   }

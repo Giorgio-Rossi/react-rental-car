@@ -1,28 +1,19 @@
 import { useState, useCallback } from 'react';
-import { useStorage } from '../hooks/useStorage';
+import axiosIstance from '../context/axiosInterceptor';
 
 export const useCarRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { getToken } = useStorage();
-
+  
   const apiUrl = 'http://localhost:8080';
 
-  const fetchRequestsBase = useCallback(async (url) => {
+  const fetchRequestsBase = useCallback(async (url, params = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const token = sessionStorage.getItem('auth-token')
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) throw new Error(`Failed to fetch requests from ${url}`);
-
-      const data = await response.json();
-      setRequests(data);
+      const response = await axiosIstance.get(url, { params });
+      setRequests(response.data);
     } catch (err) {
       setError(err.message || 'Error fetching requests');
     } finally {
@@ -35,21 +26,17 @@ export const useCarRequest = () => {
   }, [fetchRequestsBase, apiUrl]);
 
   const fetchUserRequests = useCallback(async (username) => {
-    await fetchRequestsBase(`${apiUrl}/api/requests?user=${username}`);
+    await fetchRequestsBase(
+      `${apiUrl}/api/car-requests/get-request-by-username`,
+      { username }
+    );
   }, [fetchRequestsBase, apiUrl]);
 
   const deleteRequest = useCallback(async (requestId) => {
+    setLoading(true);
+    setError(null);
     try {
-      const token = getToken();
-      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setLoading(true);
-
-      if (!response.ok) throw new Error('Failed to delete request');
+      await axiosIstance.delete(`${apiUrl}/api/car-requests/${requestId}`);
       setRequests(prev => prev.filter(req => req.id !== requestId));
     } catch (err) {
       setError(err.message || 'Error deleting request');
@@ -59,20 +46,15 @@ export const useCarRequest = () => {
   }, [apiUrl]);
 
   const createRequest = useCallback(async (newRequest) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      const response = await fetch(`${apiUrl}/api/requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newRequest)
-      });
-
-      if (!response.ok) throw new Error('Failed to create request');
-      const data = await response.json();
-      setRequests(prev => [...prev, data]);
-      return data;
+      const response = await axiosIstance.post(
+        `${apiUrl}/customer/add-request`,
+        newRequest
+      );
+      setRequests(prev => [...prev, response.data]);
+      return response.data;
     } catch (err) {
       setError(err.message || 'Error creating request');
       throw err;
@@ -82,20 +64,17 @@ export const useCarRequest = () => {
   }, [apiUrl]);
 
   const updateRequest = useCallback(async (requestId, updatedData) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedData)
-      });
-
-      if (!response.ok) throw new Error('Failed to update request');
-      const data = await response.json();
-      setRequests(prev => prev.map(req => req.id === requestId ? data : req));
-      return data;
+      const response = await axiosIstance.put(
+        `${apiUrl}/api/car-requests/update-request/${requestId}`,
+        updatedData
+      );
+      setRequests(prev => 
+        prev.map(req => req.id === requestId ? response.data : req)
+      );
+      return response.data;
     } catch (err) {
       setError(err.message || 'Error updating request');
       throw err;

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
 import './table.css';
+
 export function Table({ config, data, onOrderChange, onFilterChange, onActionClick }) {
     const [filters, setFilters] = useState({});
     const [orderBy, setOrderBy] = useState(config.currentByDefault || {});
@@ -75,7 +76,6 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
         return orderBy.orderby === 'asc' ? <FaSortUp /> : <FaSortDown />;
     };
 
-
     const renderCellValue = (row, column) => {
         const value = row[column.key];
         if (value === undefined || value === null) return '-';
@@ -94,7 +94,6 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
                 return String(value);
         }
     };
-
 
     const changePage = (page) => {
         if (page < 1 || page > totalPages || page === currentPage) return;
@@ -132,7 +131,6 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
 
         return rangeWithDots;
     };
-
 
     const hasActions = config.actions?.actions && config.actions.actions.length > 0;
 

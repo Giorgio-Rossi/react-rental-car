@@ -13,14 +13,13 @@ export const useUser = () => {
         allUsers: `${apiUrl}/users/alluser`,
         createUser: `${apiUrl}/admin/create-user`,
         updateUser: `${apiUrl}/admin/update-user`,
-        deleteUser: `${apiUrl}/admin/delete-user`
+        deleteUser: `${apiUrl}/users`
     };
 
     const getUsers = useCallback(async () => {
         setLoading(true);
         try {
             const response = await axiosIstance.get(apiUrls.allUsers);
-            console.log(response.data)
             setUsers(response.data);
         } catch (error) {
             setError(error);
