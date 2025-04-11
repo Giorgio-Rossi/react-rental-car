@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import axiosIstance from '../context/axiosInterceptor';
 
 export const useManageCars = () => {

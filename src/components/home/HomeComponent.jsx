@@ -17,7 +17,7 @@ import './home.css';
 
 const HomeComponent = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, isLoading: isAuthLoading } = useAuth();
     const { cars, getCars } = useCar();
     const { users, getUsers } = useUser();
     const {
@@ -27,8 +27,6 @@ const HomeComponent = () => {
         deleteRequest,
         loading
     } = useCarRequest();
-
-
 
     const tableAdminConfig = getTableAdminConfig();
     const tableCustomerConfig = getTableCustomerConfig();
@@ -41,10 +39,10 @@ const HomeComponent = () => {
     const memoizedFetchUserRequests = useCallback(fetchUserRequests, [fetchUserRequests]);
 
     useEffect(() => {
-        if (!user) return;
-
         const loadData = async () => {
             try {
+                if (!user) return;
+
                 await Promise.all([
                     memoizedGetCars(),
                     memoizedGetUsers()
@@ -60,8 +58,15 @@ const HomeComponent = () => {
             }
         };
 
-        loadData();
-    }, [user, memoizedGetCars, memoizedFetchAdminRequests, memoizedFetchUserRequests]);
+        if (!isAuthLoading) {
+            if (!user) {
+                console.log("User is null: ", users);
+                navigate('/login');
+            } else {
+                loadData();
+            }
+        }
+    }, [user, isAuthLoading, navigate, memoizedGetCars, memoizedGetUsers, memoizedFetchAdminRequests, memoizedFetchUserRequests]);
 
     const handleActionClick = async (action, row) => {
         if (action === 'Modifica') {
@@ -85,9 +90,11 @@ const HomeComponent = () => {
 
     const tableData = useCallback(() => {
         if (!requests || !users || !cars) return [];
-    
+
         return requests.map(request => {
-            const fullName = users.find(u => u.id === request.userId)?.fullName || 'Sconosciuto';
+            const user = users.find(u => u.id === request.userId);
+
+            const fullName = user ? user.fullName : 'Utente non trovato';
             const carDetails = getCarDetails(request.carId, cars);
             return {
                 ...request,
@@ -97,11 +104,12 @@ const HomeComponent = () => {
                 carDetails
             };
         });
+
     }, [requests, users, cars]);
+
     if (loading) {
         return <div>Loading...</div>;
     }
-
 
     return (
         <div className="home-container">
@@ -128,10 +136,17 @@ const formatDate = (date) => {
 };
 
 const getCarDetails = (carID, cars) => {
+    if (!cars || cars.length === 0) return 'Auto non trovata';
+
     if (Array.isArray(carID)) {
-        return carID.map(id => cars.find(c => c.id === id)?.licensePlate || 'Unknown').join(', ');
+        return carID.map(id => {
+            const car = cars.find(c => c.id === id);
+            return car ? car.licensePlate : 'Auto non trovata';
+        }).join(', ');
     }
-    return cars.find(c => c.id === carID)?.licensePlate || 'Unknown';
+
+    const car = cars.find(c => c.id === carID);
+    return car ? car.licensePlate : 'Auto non trovata';
 };
 
 export default HomeComponent;

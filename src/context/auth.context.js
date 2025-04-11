@@ -3,66 +3,46 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import axiosIstance from "./axiosInterceptor";
+import { useStorage } from '../hooks/useStorage';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(sessionStorage.getItem('auth-token'));
+    const { 
+        saveToken, 
+        clean, 
+        getUser, 
+        getToken, 
+        isLoggedIn: storageIsLoggedIn,
+        getUserType: storageGetUserType,
+        currentUser,
+        currentToken
+    } = useStorage();
+    
+    const [user, setUser] = useState(currentUser);
+    const [token, setToken] = useState(currentToken);
     const [isLoading, setIsLoading] = useState(true);
     const apiUrl = 'http://localhost:8080';
     const navigate = useNavigate();
 
     useEffect(() => {
-        const initializeUser = () => {
-            const storedToken = sessionStorage.getItem('auth-token');
-            if (storedToken) {
-                try {
-                    const decoded = jwtDecode(storedToken);
-                    setUser({
-                        id: decoded.id,
-                        username: decoded.sub,
-                        email: decoded.email,
-                        role: decoded.role
-                    });
-                } catch (error) {
-                    console.error("Errore nella decodifica del token:", error);
-                    sessionStorage.removeItem('auth-token');
-                    setToken(null);
-                    setUser(null);
-                } finally {
-                    setIsLoading(false);
-                }
-            } else {
-                setIsLoading(false);
-            }
-        };
+        setUser(currentUser);
+        setToken(currentToken);
+    }, [currentUser, currentToken]);
 
-        initializeUser();
+    useEffect(() => {
+        if (currentToken) setIsLoading(false);
+        else setIsLoading(false);
     }, []);
 
     const login = async (username, password) => {
         setIsLoading(true);
         try {
             const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
-            const { token } = response.data;
-            sessionStorage.setItem('auth-token', token);
-
-            setToken(token);
-            const decoded = jwtDecode(token);
-            const userData = {
-                id: decoded.id,
-                username: decoded.sub,
-                email: decoded.email,
-                role: decoded.role
-            };
-
-            sessionStorage.setItem('currentUser', JSON.stringify(userData));
-
-
+            saveToken(response.data.token); 
             return response.data;
         } catch (error) {
-            throw (error);
+            throw error;
         } finally {
             setIsLoading(false);
         }
@@ -77,73 +57,23 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Error during logout:', error);
         } finally {
-            sessionStorage.removeItem('auth-token');
-            setToken(null);
-            setUser(null);
+            clean(); 
             navigate('/login');
             setIsLoading(false);
         }
-    }
-
-    useEffect(() => {
-        const handleStorageChange = (e) => {
-            if (e.key === 'auth-token') {
-                setToken(e.newValue);
-                const storedToken = e.newValue;
-                if (storedToken) {
-                    try {
-                        const decoded = jwtDecode(storedToken);
-                        setUser({
-                            id: decoded.id,
-                            username: decoded.sub,
-                            email: decoded.email,
-                            role: decoded.role
-                        });
-                    } catch (error) {
-                        console.error("Errore nella decodifica del token (storage change):", error);
-                        sessionStorage.removeItem('auth-token');
-                        setToken(null);
-                        setUser(null);
-                    }
-                } else {
-                    setUser(null);
-                }
-            }
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, [navigate]);
-
-    const isLoggedIn = () => {
-        return !!token;
-    }
-
-    const getUserType = () => {
-        if (!token)
-            return '';
-
-        try {
-            const decoded = jwtDecode(token);
-            return decoded.role;
-        } catch (error) {
-            console.error('Error decoding token', error);
-            return '';
-        }
-    }
+    };
 
     const value = {
         user,
         token,
         login,
         logout,
-        isLoggedIn,
-        getUserType,
+        isLoggedIn: storageIsLoggedIn,
+        getUserType: storageGetUserType,
         isLoading
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);

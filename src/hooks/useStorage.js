@@ -7,71 +7,83 @@ const TOKEN_KEY = 'auth-token';
 export const useStorage = () => {
     const [user, setUser] = useState(() => {
         const storedUser = sessionStorage.getItem(USER_KEY);
-        return storedUser ? JSON.parse(storedUser) : {};
+        return storedUser ? JSON.parse(storedUser) : null;
     });
 
     const [token, setToken] = useState(sessionStorage.getItem(TOKEN_KEY) || null);
 
     const clean = () => {
-        sessionStorage.clear();
-        setUser({});
+        sessionStorage.removeItem(USER_KEY);
+        sessionStorage.removeItem(TOKEN_KEY);
+        setUser(null);
         setToken(null);
     };
 
     const saveUser = (userData) => {
-        sessionStorage.removeItem(USER_KEY);
         sessionStorage.setItem(USER_KEY, JSON.stringify(userData));
         setUser(userData);
     };
-    
 
-    const saveToken = (newToken) => {
-        sessionStorage.removeItem(TOKEN_KEY)
-        sessionStorage.setItem(TOKEN_KEY, newToken.token)
-        setToken(newToken.token);
+    const saveToken = (newToken) => {  
+        sessionStorage.setItem(TOKEN_KEY, newToken);
+        setToken(newToken);
+        
+        try {
+            const decoded = jwtDecode(newToken);
+            saveUser({
+                id: decoded.id,
+                username: decoded.sub,
+                role: decoded.role
+            });
+        } catch (error) {
+            console.error("Token decoding failed:", error);
+            clean();
+        }
     };
 
-    const getToken = () => {
-        return token || sessionStorage.getItem(TOKEN_KEY);
-    };
+    const getToken = () => token;
 
-    const getUser = () => {
-        const storedUser = sessionStorage.getItem(USER_KEY);
-        return storedUser ? JSON.parse(storedUser) : {};
-    };
+    const getUser = () => user;
 
     const getUserType = () => {
-        const currentToken = getToken();
-        if (currentToken) {
-            try {
-                const decodedToken = jwtDecode(currentToken);
-                return decodedToken.role || '';
-            } catch (error) {
-                console.error('Error decoding token', error);
-                return '';
-            }
+        if (!token) return '';
+        try {
+            const decoded = jwtDecode(token);
+            return decoded.role || '';
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return '';
         }
-        return '';
     };
 
-    const isLoggedIn = () => {
-        return !!getToken();
-    };
+    const isLoggedIn = () => !!token;
 
     useEffect(() => {
         const handleStorageChange = (e) => {
-            if (e.key === USER_KEY) {
-                setUser(e.newValue ? JSON.parse(e.newValue) : {});
-            }
             if (e.key === TOKEN_KEY) {
-                setToken(e.newValue);
+                const newToken = e.newValue;
+                setToken(newToken);
+                if (newToken) {
+                    try {
+                        const decoded = jwtDecode(newToken);
+                        saveUser({
+                            id: decoded.id,
+                            username: decoded.sub,
+                            role: decoded.role
+                        });
+                    } catch (error) {
+                        console.error("Token decoding failed:", error);
+                        clean();
+                    }
+                } else {
+                    setUser(null);
+                }
             }
         };
 
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
-
 
     return {
         clean,
@@ -84,4 +96,4 @@ export const useStorage = () => {
         currentUser: user,
         currentToken: token
     };
-}
+};

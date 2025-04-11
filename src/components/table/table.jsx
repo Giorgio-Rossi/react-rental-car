@@ -84,9 +84,9 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
             case 'Date':
                 try {
                     const date = new Date(value);
-                    return !isNaN(date.getTime()) ? date.toLocaleDateString('it-IT') : 'Data non valida';
+                    return !isNaN(date.getTime()) ? date.toLocaleDateString('it-IT') : 'Column type is not a date';
                 } catch (e) {
-                    return 'Data non valida';
+                    return 'Column type is not a date';
                 }
             case 'Number':
                 return String(value);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; 
 import { useAuth } from '../../hooks/useAuth';
 import { useStorage } from '../../hooks/useStorage';
 
@@ -28,17 +29,21 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const data = await login(form.username, form.password);
+      const response = await login(form.username, form.password);
+      const token = response?.token;
 
-      if (data?.token) {
-        const user = {
-          username: data.username,
-          role: data.role // || 'ROLE_CUSTOMER'
+      if (token) {
+        const decodedUser = jwtDecode(token);
+        
+        const userData = {
+          username: decodedUser.sub,
+          role: decodedUser.role 
         };
 
-        console.log("Role: ", data.role)
-        saveToken(data);
-        saveUser(user);
+        console.log("Ruolo estratto:", userData.role);
+
+        saveToken(token);
+        saveUser(userData);
         setIsLoginFailed(false);
         navigate('/home');
       } else {
@@ -47,7 +52,7 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login failed', err);
-      setErrorMessage(err.message || 'An error occurred');
+      setErrorMessage(err.response?.data?.message || 'An error occurred');
       setIsLoginFailed(true);
     }
   };

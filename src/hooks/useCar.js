@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import axios from "axios";
 import axiosIstance from "../context/axiosInterceptor";
 
 export const useCar = () => {
@@ -20,6 +19,7 @@ export const useCar = () => {
         setLoading(true);
         try {
           const response = await axiosIstance.get(apiUrls.allCars);
+          console.log(response.data)
           setCars(response.data);
           return response.data;
         } catch (error) {
