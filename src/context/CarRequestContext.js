@@ -24,7 +24,7 @@ export const useCarRequest = () => {
                 updatedAt: new Date().toISOString()
             }
             const response = await axiosIstance.post(
-                `${endpoints.customer}/add-request`,
+                `${endpoint.customer}/add-request`,
                 payload
             )
             setRequest(prev => [...prev, response.data])

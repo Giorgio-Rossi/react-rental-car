@@ -10,9 +10,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const { 
         saveToken, 
-        clean, 
-        getUser, 
-        getToken, 
+        clean,
         isLoggedIn: storageIsLoggedIn,
         getUserType: storageGetUserType,
         currentUser,

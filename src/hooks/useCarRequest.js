@@ -5,7 +5,7 @@ export const useCarRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const apiUrl = 'http://localhost:8080';
 
   const fetchRequestsBase = useCallback(async (url, params = {}) => {
@@ -71,7 +71,7 @@ export const useCarRequest = () => {
         `${apiUrl}/api/car-requests/update-request/${requestId}`,
         updatedData
       );
-      setRequests(prev => 
+      setRequests(prev =>
         prev.map(req => req.id === requestId ? response.data : req)
       );
       return response.data;
@@ -91,7 +91,7 @@ export const useCarRequest = () => {
         `${apiUrl}/admin/manage-request/${requestId}`,
         { status: newStatus }
       );
-      setRequests(prev => 
+      setRequests(prev =>
         prev.map(req => req.id === requestId ? response.data : req)
       );
       return response.data;

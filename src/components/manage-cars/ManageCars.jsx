@@ -10,7 +10,6 @@ const ManageCars = () => {
   const { user } = useAuth();
   const { cars, getCars, deleteCar, loading, error } = useCar();
 
-  // Effetto per il controllo dell'utente autorizzato
   useEffect(() => {
     if (user && user.role !== 'ROLE_ADMIN') {
       console.log("Utente non autorizzato, reindirizzamento a /home");
@@ -18,12 +17,11 @@ const ManageCars = () => {
       return;
     }
 
-    // Carica le auto solo se l'utente è admin
     if (user?.role === 'ROLE_ADMIN') {
       console.log("Caricamento auto per admin...");
       getCars();
     }
-  }, [user, navigate, getCars]);  // Dipendenze: `getCars` solo quando necessario
+  }, [user, navigate, getCars]);
 
   const handleActionClick = async (action, data) => {
     if (action === 'Modifica') {

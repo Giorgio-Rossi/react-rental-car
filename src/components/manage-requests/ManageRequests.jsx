@@ -112,7 +112,7 @@ const ManageRequests = () => {
     return <div className="manage-requests-container"><p style={{ color: 'red' }}>Errore nel caricamento: {combinedError.message || 'Errore sconosciuto'}</p></div>;
   }
 
-  
+
   return (
     <div className="manage-requests-container">
       <h2>Gestione richieste</h2>

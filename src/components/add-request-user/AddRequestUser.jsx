@@ -44,7 +44,7 @@ export default function AddRequestUser() {
           start: formattedStart,
           end: formattedEnd
         },
-    
+
       })
         .then(res => setAvailableCars(res.data))
         .catch(err => console.error('Errore nel recupero auto disponibili:', err));
@@ -52,19 +52,19 @@ export default function AddRequestUser() {
   };
 
   const onSubmit = (data) => {
-        const requestPayload = {
-          userID: currentUserID,
-          carID: Number(data.car_id),
-          startReservation: new Date(data.start_reservation).toISOString(),
-          endReservation: new Date(data.end_reservation).toISOString(),
-          status: 'IN_ATTESA',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
+    const requestPayload = {
+      userID: currentUserID,
+      carID: Number(data.car_id),
+      startReservation: new Date(data.start_reservation).toISOString(),
+      endReservation: new Date(data.end_reservation).toISOString(),
+      status: 'IN_ATTESA',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
 
-        axiosIstance.post('http://localhost:8080/customer/add-request', requestPayload)
-          .then(() => navigate('/home'))
-          .catch(err => console.error('Errore nel salvataggio:', err));
+    axiosIstance.post('http://localhost:8080/customer/add-request', requestPayload)
+      .then(() => navigate('/home'))
+      .catch(err => console.error('Errore nel salvataggio:', err));
   };
 
 

@@ -15,22 +15,22 @@ export const useCar = () => {
         deleteCar: `${apiUrl}/api/car-requests`
     };
 
-      const getCars = useCallback(async () => {
+    const getCars = useCallback(async () => {
         setLoading(true);
         try {
-          const response = await axiosIstance.get(apiUrls.allCars);
-          console.log(response.data)
-          setCars(response.data);
-          return response.data;
+            const response = await axiosIstance.get(apiUrls.allCars);
+            console.log(response.data)
+            setCars(response.data);
+            return response.data;
         } catch (error) {
-          setError(error);
-          throw error;
+            setError(error);
+            throw error;
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      }, [apiUrls.allCars]);
+    }, [apiUrls.allCars]);
 
-      
+
     const createCar = useCallback(async (car) => {
         setLoading(true);
         try {

@@ -24,10 +24,10 @@ export const useStorage = () => {
         setUser(userData);
     };
 
-    const saveToken = (newToken) => {  
+    const saveToken = (newToken) => {
         sessionStorage.setItem(TOKEN_KEY, newToken);
         setToken(newToken);
-        
+
         try {
             const decoded = jwtDecode(newToken);
             saveUser({

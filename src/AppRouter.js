@@ -1,19 +1,16 @@
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import React from 'react';
-
-
-import { AuthProvider } from './context/auth.context.js';
-
+import { AuthProvider } from './context/authProvider.js';
 import Login from './components/login/Login.jsx';
 import HomeComponent from './components/home/HomeComponent.jsx';
-import ManageRequests from './components/manage-requests/ManageRequests.jsx'; 
+import ManageRequests from './components/manage-requests/ManageRequests.jsx';
 import AddCar from './components/add-car/AddCar.jsx';
 import AddRequestUser from './components/add-request-user/AddRequestUser.jsx';
 import ManageCars from './components/manage-cars/ManageCars.jsx';
 import FormViewEditCar from './components/form-view-edit-car/FormViewEditCar.jsx';
 import ManageUsers from './components/manage-users/ManageUser.jsx';
 import AddUser from './components/add-user/AddUser.jsx';
-import FormViewEditUser from './components/form-view-edit-users/FormViewEditUser.jsx'; 
+import FormViewEditUser from './components/form-view-edit-users/FormViewEditUser.jsx';
 import FormViewEditRequest from './components/form-view-edit-request/FormViewEditRequest.jsx';
 
 import App from './App';
@@ -29,7 +26,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/login" replace />, 
+        element: <Navigate to="/login" replace />,
       },
       {
         path: '/login',
@@ -56,7 +53,7 @@ const router = createBrowserRouter([
         element: <ManageCars />,
       },
       {
-        path: '/edit-cars/:id', 
+        path: '/edit-cars/:id',
         element: <FormViewEditCar />,
       },
       {
@@ -68,15 +65,15 @@ const router = createBrowserRouter([
         element: <ManageUsers />,
       },
       {
-        path: '/edit-user/:id', 
+        path: '/edit-user/:id',
         element: <FormViewEditUser />,
       },
       {
-        path: '/edit-request/:id', 
+        path: '/edit-request/:id',
         element: <FormViewEditRequest />,
       },
       {
-        path: '/app', 
+        path: '/app',
         element: <App />,
       },
     ],
@@ -85,6 +82,6 @@ const router = createBrowserRouter([
 
 export default function AppRouter() {
   return (
-      <RouterProvider router={router} />
+    <RouterProvider router={router} />
   );
 }
