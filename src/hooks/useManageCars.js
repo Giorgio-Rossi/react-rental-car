@@ -38,7 +38,7 @@ export const useManageCars = () => {
     const updateCar = useCallback(async (id, updatedCar) => {
         setLoading(true);
         try {
-            const response = await axiosIstance.put(
+            const response = await axiosIstance.patch(
                 `${apiUrl}/${id}`,
                 updatedCar
             );
@@ -69,23 +69,6 @@ export const useManageCars = () => {
         }
     }, [apiUrl]);
 
-    const getAvailableCars = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await axiosIstance.get(`${apiUrl}/allcars`);
-            return response.data;
-        } catch (err) {
-            setError(err);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, [apiUrl]);
-
-    useEffect(() => {
-        getAllCars();
-    }, [getAllCars]);
-
     return {
         cars,
         loading,
@@ -93,7 +76,6 @@ export const useManageCars = () => {
         getAllCars,
         getCarById,
         updateCar,
-        getAvailableCarsByDate,
-        getAvailableCars
+        getAvailableCarsByDate
     };
 };

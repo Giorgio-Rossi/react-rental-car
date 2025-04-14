@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import axiosIstance from "./axiosInterceptor";
 import { useStorage } from '../hooks/useStorage';
 
@@ -13,24 +12,27 @@ export const AuthProvider = ({ children }) => {
         clean,
         isLoggedIn: storageIsLoggedIn,
         getUserType: storageGetUserType,
-        currentUser,
-        currentToken
+        getUser,
+        getToken
     } = useStorage();
     
-    const [user, setUser] = useState(currentUser);
-    const [token, setToken] = useState(currentToken);
+    const [user, setUser] = useState(getUser);
+    const [token, setToken] = useState(getToken);
     const [isLoading, setIsLoading] = useState(true);
     const apiUrl = 'http://localhost:8080';
     const navigate = useNavigate();
 
     useEffect(() => {
-        setUser(currentUser);
-        setToken(currentToken);
-    }, [currentUser, currentToken]);
+        setUser(getUser);
+        setToken(getToken);
+    }, [getUser,getToken]);
 
     useEffect(() => {
-        if (currentToken) setIsLoading(false);
-        else setIsLoading(false);
+        if (getToken) {
+            setIsLoading(false);
+        } else {
+            setIsLoading(false);
+        }
     }, []);
 
     const login = async (username, password) => {

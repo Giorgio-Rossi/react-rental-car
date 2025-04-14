@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useCarRequest } from '../../hooks/useCarRequest.js';
@@ -6,6 +6,8 @@ import { useCar } from '../../hooks/useCar.js';
 import { useUser } from '../../hooks/useUser';
 import { Table } from '../table/table';
 import Navbar from '../navbar/Navbar';
+import { processRequests } from '../../utils/processRequests';
+
 import {
     getButtonConfigsAdmin,
     getButtonConfigsUser,
@@ -53,6 +55,7 @@ const HomeComponent = () => {
                 } else if (user.username) {
                     await memoizedFetchUserRequests(user.username);
                 }
+                console.log(user)
             } catch (error) {
                 console.error("Errore durante il caricamento dei dati:", error);
             }
@@ -60,12 +63,13 @@ const HomeComponent = () => {
 
         if (!isAuthLoading) {
             if (!user) {
-                console.log("User is null: ", users);
+                console.log("User is null: ", user);
                 navigate('/login');
             } else {
                 loadData();
             }
         }
+
     }, [user, isAuthLoading, navigate, memoizedGetCars, memoizedGetUsers, memoizedFetchAdminRequests, memoizedFetchUserRequests]);
 
     const handleActionClick = async (action, row) => {
@@ -88,23 +92,14 @@ const HomeComponent = () => {
     const currentButtonConfigs = user?.role === 'ROLE_ADMIN' ? buttonConfigsAdmin : buttonConfigsUser;
     const currentTableConfig = user?.role === 'ROLE_CUSTOMER' ? tableCustomerConfig : tableAdminConfig;
 
-    const tableData = useCallback(() => {
-        if (!requests || !users || !cars) return [];
-
-        return requests.map(request => {
-            const user = users.find(u => u.id === request.userId);
-
-            const fullName = user ? user.fullName : 'Utente non trovato';
-            const carDetails = getCarDetails(request.carId, cars);
-            return {
-                ...request,
-                fullName,
-                start_reservation: formatDate(request.startReservation),
-                end_reservation: formatDate(request.endReservation),
-                carDetails
-            };
-        });
-
+    const tableData = useMemo(() => {
+        const processed = processRequests(requests, users, cars);
+        console.log(processed);  
+        return processed.map(request => ({
+            ...request,
+            start_reservation: formatDate(request.startReservation),
+            end_reservation: formatDate(request.endReservation)
+        }));
     }, [requests, users, cars]);
 
     if (loading) {
@@ -123,7 +118,7 @@ const HomeComponent = () => {
 
             <Table
                 config={currentTableConfig}
-                data={tableData()}
+                data={tableData}
                 onActionClick={({ action, row }) => handleActionClick(action, row)}
             />
         </div>
@@ -133,20 +128,6 @@ const HomeComponent = () => {
 const formatDate = (date) => {
     if (!date) return '';
     return new Date(date).toLocaleDateString('it-IT');
-};
-
-const getCarDetails = (carID, cars) => {
-    if (!cars || cars.length === 0) return 'Auto non trovata';
-
-    if (Array.isArray(carID)) {
-        return carID.map(id => {
-            const car = cars.find(c => c.id === id);
-            return car ? car.licensePlate : 'Auto non trovata';
-        }).join(', ');
-    }
-
-    const car = cars.find(c => c.id === carID);
-    return car ? car.licensePlate : 'Auto non trovata';
 };
 
 export default HomeComponent;

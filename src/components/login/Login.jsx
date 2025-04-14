@@ -36,11 +36,13 @@ const Login = () => {
         const decodedUser = jwtDecode(token);
 
         const userData = {
+          id: decodedUser.id,
           username: decodedUser.sub,
           role: decodedUser.role
         };
 
         console.log("Ruolo estratto:", userData.role);
+        console.log("Ruolo estratto:", userData.id);
 
         saveToken(token);
         saveUser(userData);

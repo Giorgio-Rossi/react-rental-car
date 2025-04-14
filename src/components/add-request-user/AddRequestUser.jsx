@@ -1,14 +1,20 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import './add-request-user.css'
 import axiosIstance from '../../context/axiosInterceptor';
+import { useCarRequest } from '../../hooks/useCarRequest';
+import { useStorage } from '../../hooks/useStorage';
 
 export default function AddRequestUser() {
   const navigate = useNavigate();
   const [availableCars, setAvailableCars] = useState([]);
   const [loggedInUser, setLoggedInUser] = useState('');
-  const [currentUserID, setCurrentUserID] = useState(null);
+  const { createRequest } = useCarRequest();
+  const { getUser } = useStorage();
+
+  const user = getUser();
+  console.log("Oggetto user arrivato da useStorage: ", user)
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
@@ -26,17 +32,6 @@ export default function AddRequestUser() {
   const formattedStart = formatDateTime(startReservation);
   const formattedEnd = formatDateTime(endReservation);
 
-  useEffect(() => {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-    if (currentUser) {
-      setLoggedInUser(currentUser.username);
-      setCurrentUserID(currentUser.id);
-    }
-
-    const token = sessionStorage.getItem('auth-token');
-  }, []);
-
-
   const fetchAvailableCars = () => {
     if (startReservation && endReservation) {
       axiosIstance.get('http://localhost:8080/api/car-requests/available-cars', {
@@ -51,9 +46,12 @@ export default function AddRequestUser() {
     }
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+
+    console.log(user)
+
     const requestPayload = {
-      userID: currentUserID,
+      userID: user.id,
       carID: Number(data.car_id),
       startReservation: new Date(data.start_reservation).toISOString(),
       endReservation: new Date(data.end_reservation).toISOString(),
@@ -62,17 +60,21 @@ export default function AddRequestUser() {
       updatedAt: new Date().toISOString()
     };
 
-    axiosIstance.post('http://localhost:8080/customer/add-request', requestPayload)
-      .then(() => navigate('/home'))
-      .catch(err => console.error('Errore nel salvataggio:', err));
-  };
+    console.log(requestPayload)
 
+    try {
+      await createRequest(requestPayload);
+      navigate('/home');
+    } catch (err) {
+      console.error('Errore nel salvataggio:', err);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="userName">User Name:</label>
-        <input id="userName" value={loggedInUser} disabled />
+        <input id="userName" value={user.username} disabled />
       </div>
 
       <div>

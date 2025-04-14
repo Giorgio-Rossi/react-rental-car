@@ -4,6 +4,8 @@ import { useCarRequest } from '../../hooks/useCarRequest';
 import { useUser } from '../../hooks/useUser';
 import { useCar } from '../../hooks/useCar';
 import { useAuth } from '../../hooks/useAuth';
+import { processRequests } from '../../utils/processRequests';
+
 
 import './manage-requests.css';
 
@@ -40,33 +42,12 @@ const ManageRequests = () => {
 
   }, [user, navigate, fetchAdminRequests, getUsers, getCars, dataLoaded, authLoading]);
 
+  
   const processedRequests = useMemo(() => {
-    if (!requests || !users || !cars) {
-      return [];
-    }
-
-    console.log("Processamento richieste...");
-    return requests.map(request => {
-      const userDetail = users.find(u => u.id === (request.userId || request.userID));
-      let carDetails = 'Sconosciuta';
-      if (request.carId || request.carID) {
-        const carIdValue = request.carId || request.carID;
-        if (Array.isArray(carIdValue)) {
-          carDetails = carIdValue.map(id => cars.find(c => c.id === id)?.licensePlate || 'ID Sconosciuto')
-            .filter(Boolean).join(', ') || 'Nessuna Targa';
-        } else {
-          carDetails = cars.find(c => c.id === carIdValue)?.licensePlate || 'Sconosciuta';
-        }
-      }
-
-      return {
-        ...request,
-        userFullName: userDetail?.fullName || 'Sconosciuto',
-        carDetails: carDetails,
-      };
-    });
+    return processRequests(requests, users, cars);
   }, [requests, users, cars]);
 
+  
   const handleActionClick = async (action, requestData) => {
     console.log(`Azione: ${action}, Richiesta ID: ${requestData.id}`);
     const requestId = requestData.id;
