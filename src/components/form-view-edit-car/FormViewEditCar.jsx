@@ -30,11 +30,11 @@ const FormViewEditCar = () => {
       const navigationData = location.state?.carData;
 
       if (navigationData) {
-        console.log("Dati auto ricevuti dallo stato di navigazione:", navigationData);
+//        console.log("Dati auto ricevuti dallo stato di navigazione:", navigationData);
         setCarData(navigationData);
         setLoading(false);
       } else {
-        console.log("Nessun dato auto nello stato di navigazione, caricamento tramite ID:", id);
+//        console.log("Nessun dato auto nello stato di navigazione, caricamento tramite ID:", id);
         try {
           if (id) {
             const fetchedCar = await getCar(id);
@@ -74,7 +74,7 @@ const FormViewEditCar = () => {
       setError(null);
       try {
         await updateCar(carData);
-        console.log("Auto aggiornata con successo.");
+//        console.log("Auto aggiornata con successo.");
         navigate('/manage-cars');
       } catch (error) {
         console.error('Errore durante l\'aggiornamento dell\'auto:', error);

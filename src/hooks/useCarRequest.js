@@ -15,7 +15,7 @@ export const useCarRequest = () => {
     setError(null);
     try {
       const response = await axiosIstance.get(url, { params });
-      console.log("Response data:", response.data);
+//      console.log("Response data:", response.data);
       setRequests(response.data);
     } catch (err) {
       setError(err.message || 'Error fetching requests');

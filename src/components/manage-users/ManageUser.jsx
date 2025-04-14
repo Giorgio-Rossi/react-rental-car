@@ -13,12 +13,12 @@ const ManageUsers = () => {
 
   useEffect(() => {
     if (!loggedInUser || loggedInUser.role !== 'ROLE_ADMIN') {
-      console.log("Utente non ADMIN, reindirizzamento a /home");
+//      console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
       return;
     }
 
-    console.log("Caricamento utenti per admin...");
+//    console.log("Caricamento utenti per admin...");
     getUsers();
   }, [loggedInUser, navigate, getUsers]);
 
@@ -30,7 +30,7 @@ const ManageUsers = () => {
       if (confirmDelete) {
         try {
           await deleteUser(userData.id);
-          console.log(`Utente con id ${userData.id} eliminato.`);
+//          console.log(`Utente con id ${userData.id} eliminato.`);
         } catch (err) {
           console.error('Errore durante l\'eliminazione dell\'utente:', err);
         }

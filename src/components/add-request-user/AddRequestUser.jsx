@@ -1,4 +1,4 @@
-import {  useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import './add-request-user.css'
@@ -14,7 +14,7 @@ export default function AddRequestUser() {
   const { getUser } = useStorage();
 
   const user = getUser();
-  console.log("Oggetto user arrivato da useStorage: ", user)
+  // console.log("Oggetto user arrivato da useStorage: ", user)
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
@@ -48,8 +48,6 @@ export default function AddRequestUser() {
 
   const onSubmit = async (data) => {
 
-    console.log(user)
-
     const requestPayload = {
       userID: user.id,
       carID: Number(data.car_id),
@@ -60,13 +58,12 @@ export default function AddRequestUser() {
       updatedAt: new Date().toISOString()
     };
 
-    console.log(requestPayload)
 
     try {
       await createRequest(requestPayload);
       navigate('/home');
     } catch (err) {
-      console.error('Errore nel salvataggio:', err);
+      // console.error('Errore nel salvataggio:', err);
     }
   };
 

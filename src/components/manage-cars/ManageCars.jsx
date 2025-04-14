@@ -12,13 +12,13 @@ const ManageCars = () => {
 
   useEffect(() => {
     if (user && user.role !== 'ROLE_ADMIN') {
-      console.log("Utente non autorizzato, reindirizzamento a /home");
+//      console.log("Utente non autorizzato, reindirizzamento a /home");
       navigate('/home');
       return;
     }
 
     if (user?.role === 'ROLE_ADMIN') {
-      console.log("Caricamento auto per admin...");
+//      console.log("Caricamento auto per admin...");
       getCars();
     }
   }, [user, navigate, getCars]);
@@ -30,7 +30,7 @@ const ManageCars = () => {
     if (action === 'Elimina') {
       try {
         await deleteCar(data.id);
-        console.log(`Auto con id ${data.id} eliminata.`);
+//        console.log(`Auto con id ${data.id} eliminata.`);
       } catch (err) {
         console.error('Errore durante l\'eliminazione dell\'auto:', err);
       }

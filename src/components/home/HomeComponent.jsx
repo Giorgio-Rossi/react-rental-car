@@ -94,7 +94,7 @@ const HomeComponent = () => {
 
     const tableData = useMemo(() => {
         const processed = processRequests(requests, users, cars);
-        console.log(processed);  
+        console.table(processed);  
         return processed.map(request => ({
             ...request,
             start_reservation: formatDate(request.startReservation),

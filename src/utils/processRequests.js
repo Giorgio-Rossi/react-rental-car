@@ -15,8 +15,6 @@ export const processRequests = (requests, users, cars) => {
           carDetails = cars.find(c => c.id === carIdValue)?.licensePlate || 'Sconosciuta';
         }
       }
-
-      console.log(userDetail?.fullName)
   
       return {
         ...request,
