@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useUser } from '../../hooks/useUser';
 import './AddUser.css';
-import axiosIstance from '../../context/axiosInterceptor';
 
 const AddUser = () => {
   const navigate = useNavigate();
+  const { createUser } = useUser();
   const { user: loggedInUser } = useAuth();
   const [user, setUser] = useState({
     id: 0,
     username: '',
     fullName: '',
     email: '',
-    role: 'ROLE_USER',
+    role: 'CUSTOMER',
     password: '',
     created_at: new Date(),
     updated_at: new Date(),
   });
-  const apiUrl = 'http://localhost:8080/admin';
 
   useEffect(() => {
     if (loggedInUser?.role !== 'ROLE_ADMIN') {
@@ -34,11 +34,12 @@ const AddUser = () => {
   const saveUser = async (e) => {
     e.preventDefault();
     try {
-
-      user.created_at = new Date();
-      user.updated_at = new Date();
-
-      await axiosIstance.post(`${apiUrl}/add-user`, user);
+      const newUser = {
+        ...user,
+        created_at: new Date(),
+        updated_at: new Date()
+      };
+      await createUser(newUser);
       navigate('/manage-users');
     } catch (error) {
       console.error('Errore nel salvataggio dell\'utente:', error);
@@ -49,7 +50,7 @@ const AddUser = () => {
       }
     }
   };
-
+  
   return (
     <div className="add-user-container">
       <h2>Aggiungi Utente</h2>

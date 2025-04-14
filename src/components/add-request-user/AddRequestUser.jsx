@@ -2,19 +2,16 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import './add-request-user.css'
-import axiosIstance from '../../context/axiosInterceptor';
 import { useCarRequest } from '../../hooks/useCarRequest';
 import { useStorage } from '../../hooks/useStorage';
 
 export default function AddRequestUser() {
   const navigate = useNavigate();
   const [availableCars, setAvailableCars] = useState([]);
-  const [loggedInUser, setLoggedInUser] = useState('');
-  const { createRequest } = useCarRequest();
+  const { createRequest, getAvailableCarsByDate } = useCarRequest();
   const { getUser } = useStorage();
 
   const user = getUser();
-  // console.log("Oggetto user arrivato da useStorage: ", user)
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
@@ -32,22 +29,19 @@ export default function AddRequestUser() {
   const formattedStart = formatDateTime(startReservation);
   const formattedEnd = formatDateTime(endReservation);
 
-  const fetchAvailableCars = () => {
+  const fetchAvailableCars = async () => {
     if (startReservation && endReservation) {
-      axiosIstance.get('http://localhost:8080/api/car-requests/available-cars', {
-        params: {
-          start: formattedStart,
-          end: formattedEnd
-        },
-
-      })
-        .then(res => setAvailableCars(res.data))
-        .catch(err => console.error('Errore nel recupero auto disponibili:', err));
+      try {
+        const cars = await getAvailableCarsByDate(formattedStart, formattedEnd);
+        setAvailableCars(cars);
+      } catch (err) {
+        console.error('Errore nel recupero auto disponibili:', err);
+      }
     }
   };
+  
 
   const onSubmit = async (data) => {
-
     const requestPayload = {
       userID: user.id,
       carID: Number(data.car_id),
@@ -58,12 +52,10 @@ export default function AddRequestUser() {
       updatedAt: new Date().toISOString()
     };
 
-
     try {
       await createRequest(requestPayload);
       navigate('/home');
     } catch (err) {
-      // console.error('Errore nel salvataggio:', err);
     }
   };
 

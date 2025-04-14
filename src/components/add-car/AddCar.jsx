@@ -8,6 +8,7 @@ const AddCarComponent = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { createCar } = useCar();
+  const [touched, setTouched] = useState({});
 
   const [car, setCar] = useState({
     id: 0,
@@ -18,7 +19,6 @@ const AddCarComponent = () => {
     updatedAt: new Date().toISOString(),
   });
 
-  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     if (user?.role !== 'ROLE_ADMIN') {

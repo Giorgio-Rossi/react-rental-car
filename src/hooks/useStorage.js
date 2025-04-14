@@ -54,17 +54,6 @@ export const useStorage = () => {
         return user
     };
 
-    const getUserType = () => {
-        if (!token) return '';
-        try {
-            const decoded = jwtDecode(token);
-            return decoded.role || '';
-        } catch (error) {
-            console.error('Error decoding token:', error);
-            return '';
-        }
-    };
-
     const isLoggedIn = () => !!token;
 
     useEffect(() => {
@@ -100,7 +89,6 @@ export const useStorage = () => {
         saveToken,
         getToken,
         getUser,
-        getUserType,
         isLoggedIn
     };
 };

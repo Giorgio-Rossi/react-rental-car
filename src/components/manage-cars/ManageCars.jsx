@@ -3,34 +3,39 @@ import { useNavigate } from 'react-router-dom';
 import { useCar } from '../../hooks/useCar';
 import { useAuth } from '../../hooks/useAuth';
 import { Table } from '../table/table';
+import { useManageCars } from '../../hooks/useManageCars';
+
 import './manage-cars.css';
 
 const ManageCars = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { cars, getCars, deleteCar, loading, error } = useCar();
+  const { updateCar } = useManageCars();
 
   useEffect(() => {
     if (user && user.role !== 'ROLE_ADMIN') {
-//      console.log("Utente non autorizzato, reindirizzamento a /home");
       navigate('/home');
       return;
     }
 
     if (user?.role === 'ROLE_ADMIN') {
-//      console.log("Caricamento auto per admin...");
       getCars();
     }
   }, [user, navigate, getCars]);
 
   const handleActionClick = async (action, data) => {
     if (action === 'Modifica') {
-      navigate(`/edit-cars/${data.id}`, { state: { carData: data } });
+      const updatedCar = { ...data, status: 'IN_MANUTENZIONE' };
+      try {
+        await updateCar(data.id, updatedCar);
+      } catch (error) {
+        console.error('Errore durante la modifica dell\'auto:', error);
+      }
     }
     if (action === 'Elimina') {
       try {
         await deleteCar(data.id);
-//        console.log(`Auto con id ${data.id} eliminata.`);
       } catch (err) {
         console.error('Errore durante l\'eliminazione dell\'auto:', err);
       }

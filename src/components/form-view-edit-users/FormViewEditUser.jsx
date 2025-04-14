@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../../hooks/useUser';
 import Button from '../button/Button';
 import './form-view-edit-users.css';
@@ -7,46 +7,32 @@ import './form-view-edit-users.css';
 const FormViewEditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const { updateUser, getUser } = useUser();
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const roleOptions = ['ROLE_ADMIN', 'ROLE_USER'];
+  const roleOptions = ['ROLE_ADMIN', 'ROLE_CUSTOMER'];
 
   useEffect(() => {
     const loadUserData = async () => {
       setLoading(true);
       setError(null);
-      const navigationData = location.state?.userData;
-
-      if (navigationData) {
-        setUserData(navigationData);
-        setLoading(false);
-      } else {
-        try {
-          if (id) {
-            const fetchedUser = await getUser(id);
-            if (fetchedUser) {
-              setUserData(fetchedUser);
-            } else {
-              throw new Error(`Utente con ID ${id} non trovato.`);
-            }
-          } else {
-            throw new Error("ID utente mancante nell'URL.");
-          }
-        } catch (err) {
-          console.error("Errore durante il caricamento dell'utente:", err);
-          setError(err.message || 'Errore nel caricamento dei dati utente.');
-        } finally {
-          setLoading(false);
+      try {
+        const fetchedUser = await getUser(id);
+        if (fetchedUser) {
+          setUserData(fetchedUser);
         }
+      } catch (err) {
+        console.error("Errore durante il caricamento dell'utente:", err);
+        setError(err.message || 'Errore nel caricamento dei dati utente.');
+      } finally {
+        setLoading(false);
       }
     };
 
     loadUserData();
-  }, [id, getUser, location.state]);
+  }, [id, getUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,15 +59,6 @@ const FormViewEditUser = () => {
     navigate('/manage-users');
   };
 
-  const capitalize = (str) => {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
-
-  const objectKeys = (obj) => {
-    return Object.keys(obj || {});
-  };
-
   if (loading) {
     return <div className="form-container">Caricamento dati utente...</div>;
   }
@@ -106,13 +83,13 @@ const FormViewEditUser = () => {
       {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
 
       <form onSubmit={(e) => e.preventDefault()}>
-        {objectKeys(userData)
+        {Object.keys(userData)
           .filter(key => key !== 'role' && key !== 'id' && key !== 'password')
           .map(key => (
             <div className="form-group" key={key}>
-              <label htmlFor={key}>{capitalize(key)}</label>
+              <label htmlFor={key}>{key}</label>
               <input
-                type={'text'}
+                type="text"
                 id={key}
                 name={key}
                 value={userData[key] || ''}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useCarRequest } from '../../hooks/useCarRequest';
 import { useCar } from '../../hooks/useCar';
 import Button from '../button/Button';
@@ -8,15 +8,14 @@ import './form-view-edit-request.css';
 const FormViewEditRequest = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const { updateRequest, getRequest } = useCarRequest();
   const { cars, getCars } = useCar();
 
   const [requestData, setRequestData] = useState(null);
+  const [availableCars, setAvailableCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [title, setTitle] = useState('Dettaglio Richiesta');
-  const [availableCars, setAvailableCars] = useState([]);
+  const [title] = useState('Dettaglio Richiesta');
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -24,39 +23,22 @@ const FormViewEditRequest = () => {
       setError(null);
       try {
         await getCars();
-        const navigationData = location.state?.requestData;
-
-        if (navigationData) {
-          setRequestData(prevData => ({
-            ...navigationData,
-            startReservation: convertToDateInputFormat(navigationData.startReservation),
-            endReservation: convertToDateInputFormat(navigationData.endReservation)
-          }));
-          setLoading(false);
-        } else if (id && getRequest) {
-          const fetchedRequest = await getRequest(id);
-          if (fetchedRequest) {
-            setRequestData(prevData => ({
-              ...fetchedRequest,
-              startReservation: convertToDateInputFormat(fetchedRequest.startReservation),
-              endReservation: convertToDateInputFormat(fetchedRequest.endReservation)
-            }));
-          } else {
-            throw new Error(`Richiesta con ID ${id} non trovata.`);
-          }
-          setLoading(false);
-        } else {
-          throw new Error("ID richiesta mancante o funzione getRequest non disponibile.");
-        }
+        const fetchedRequest = await getRequest(id);
+        setRequestData({
+          ...fetchedRequest,
+          startReservation: convertToDateInputFormat(fetchedRequest.startReservation),
+          endReservation: convertToDateInputFormat(fetchedRequest.endReservation)
+        });
       } catch (err) {
-        console.error("Errore durante il caricamento dei dati della richiesta:", err);
+        console.error("Errore durante il caricamento:", err);
         setError(err.message || 'Errore nel caricamento dei dati.');
+      } finally {
         setLoading(false);
       }
     };
 
     loadInitialData();
-  }, [id, getCars, getRequest, location.state]);
+  }, [id, getCars, getRequest]);
 
   useEffect(() => {
     if (cars && cars.length > 0) {
@@ -70,53 +52,41 @@ const FormViewEditRequest = () => {
       const d = new Date(date);
       if (isNaN(d.getTime())) return '';
       const year = d.getFullYear();
-      let month = '' + (d.getMonth() + 1);
-      let day = '' + d.getDate();
-
-      if (month.length < 2) month = '0' + month;
-      if (day.length < 2) day = '0' + day;
-
-      return [year, month, day].join('-');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     } catch (e) {
-      console.error("Error formatting date:", date, e);
+      console.error("Errore nella formattazione della data:", date, e);
       return '';
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setRequestData(prevData => ({ ...prevData, [name]: value }));
+    setRequestData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSaveChanges = async () => {
-    if (requestData) {
-      setError(null);
-      try {
-        const requestToSend = {
-          ...requestData,
-          startReservation: requestData.startReservation ? new Date(requestData.startReservation).toISOString() : null,
-          endReservation: requestData.endReservation ? new Date(requestData.endReservation).toISOString() : null
-        };
-        await updateRequest(id, requestToSend);
-        navigate('/home');
-      } catch (error) {
-        console.error('Errore durante il salvataggio:', error);
-        setError(error.message || 'Errore durante il salvataggio.');
-      }
+    if (!requestData) return;
+
+    setError(null);
+    try {
+      const requestToSend = {
+        ...requestData,
+        startReservation: requestData.startReservation ? new Date(requestData.startReservation).toISOString() : null,
+        endReservation: requestData.endReservation ? new Date(requestData.endReservation).toISOString() : null
+      };
+      await updateRequest(id, requestToSend);
+      navigate('/home');
+    } catch (err) {
+      console.error('Errore durante il salvataggio:', err);
+      setError(err.message || 'Errore durante il salvataggio.');
     }
   };
 
-  const handleClose = () => {
-    navigate('/home');
-  };
+  const handleClose = () => navigate('/home');
 
-  const objectKeys = (obj) => {
-    return Object.keys(obj || {});
-  };
-
-  if (loading) {
-    return <div className="form-container">Caricamento...</div>;
-  }
+  if (loading) return <div className="form-container">Caricamento...</div>;
 
   if (error && !requestData) {
     return (
@@ -128,81 +98,71 @@ const FormViewEditRequest = () => {
     );
   }
 
-  if (!requestData) {
-    return <div className="form-container">Nessun dato richiesta disponibile.</div>;
-  }
+  if (!requestData) return <div className="form-container">Nessun dato richiesta disponibile.</div>;
 
   return (
-    <div className="form-container">
-      <h3>{title}</h3>
-      {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
+    <div>
+    <h3>{title}</h3>
+    {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <form onSubmit={(e) => e.preventDefault()}>
-        {objectKeys(requestData)
-          .filter(key => key !== 'id')
-          .map(key => {
-            if (key === 'carId' || key === 'carID') {
-              return (
-                <div className="form-group" key="carIdSelect">
-                  <label htmlFor="car">Seleziona Auto</label>
-                  <select
-                    name="carId"
-                    value={requestData.carId || requestData.carID || ''}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="" disabled>-- Seleziona un'auto --</option>
-                    {availableCars.map(car => (
-                      <option key={car.id} value={car.id}>
-                        {car.brand} - {car.model} ({car.licensePlate})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              );
-            } else if (key === 'startReservation' || key === 'endReservation') {
-              return (
-                <div className="form-group" key={key}>
-                  <label htmlFor={key}>{key === 'startReservation' ? 'Data Inizio' : 'Data Fine'}</label>
-                  <input
-                    type="date"
-                    id={key}
-                    name={key}
-                    value={requestData[key] || ''}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              );
-            } else if (key !== 'userId' && key !== 'userID' && key !== 'status' && key !== 'userFullName' && key !== 'carDetails') {
-              return (
-                <div className="form-group" key={key}>
-                  <label htmlFor={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
-                  <input
-                    type="text"
-                    id={key}
-                    name={key}
-                    value={requestData[key] || ''}
-                    onChange={handleChange}
-                  />
-                </div>
-              );
-            }
-            return null;
-          })}
-      </form>
+    <form onSubmit={(e) => e.preventDefault()}>
+      {Object.keys(requestData)
+        .filter(key => key !== 'id')
+        .map(key => {
+          if (key === 'carId' || key === 'carID') {
+            return (
+              <div key="carIdSelect">
+                <label>Seleziona Auto</label>
+                <select
+                  name="carId"
+                  value={requestData.carId || requestData.carID || ''}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="" disabled>-- Seleziona un'auto --</option>
+                  {availableCars.map(car => (
+                    <option key={car.id} value={car.id}>
+                      {car.brand} - {car.model} ({car.licensePlate})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          } else if (key === 'startReservation' || key === 'endReservation') {
+            return (
+              <div key={key}>
+                <label>{key === 'startReservation' ? 'Data Inizio' : 'Data Fine'}</label>
+                <input
+                  type="date"
+                  name={key}
+                  value={requestData[key] || ''}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            );
+          } else if (!['userId', 'userID', 'status', 'userFullName', 'carDetails'].includes(key)) {
+            return (
+              <div key={key}>
+                <label>{key}</label>
+                <input
+                  type="text"
+                  name={key}
+                  value={requestData[key] || ''}
+                  onChange={handleChange}
+                />
+              </div>
+            );
+          }
+          return null;
+        })}
+    </form>
 
-      <div className="form-actions">
-        <Button
-          config={{ label: 'Salva' }}
-          onClick={handleSaveChanges}
-        />
-        <Button
-          config={{ label: 'Chiudi' }}
-          onClick={handleClose}
-        />
-      </div>
+    <div>
+      <Button config={{ label: 'Salva' }} onClick={handleSaveChanges} />
+      <Button config={{ label: 'Chiudi' }} onClick={handleClose} />
     </div>
+  </div>
   );
 };
 

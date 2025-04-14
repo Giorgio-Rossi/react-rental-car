@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import axiosIstance from '../context/axiosInterceptor';
 
 export const useManageCars = () => {
@@ -7,33 +7,6 @@ export const useManageCars = () => {
     const [error, setError] = useState(null);
 
     const apiUrl = 'http://localhost:8080/api/cars';
-
-    const getAllCars = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await axiosIstance.get(`${apiUrl}/allcars`);
-            setCars(response.data);
-            return response.data;
-        } catch (err) {
-            setError(err);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, [apiUrl]);
-
-    const getCarById = useCallback(async (id) => {
-        setLoading(true);
-        try {
-            const response = await axiosIstance.get(`${apiUrl}/${id}`);
-            return response.data;
-        } catch (err) {
-            setError(err);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, [apiUrl]);
 
     const updateCar = useCallback(async (id, updatedCar) => {
         setLoading(true);
@@ -56,25 +29,27 @@ export const useManageCars = () => {
 
     const getAvailableCarsByDate = useCallback(async (startDate, endDate) => {
         setLoading(true);
+        setError(null);
         try {
-            const response = await axiosIstance.get(`${apiUrl}/available-cars`, {
-                params: { startDate, endDate }
+            const response = await axiosIstance.get(`${apiUrl}/api/car-requests/available-cars`, {
+              params: {
+                startDate,
+                endDate
+              }
             });
             return response.data;
-        } catch (err) {
-            setError(err);
+          } catch (err) {
+            setError(err.message || 'Errore nel recupero auto disponibili');
             throw err;
-        } finally {
+          } finally {
             setLoading(false);
-        }
-    }, [apiUrl]);
+          }
+        }, [apiUrl]);
 
     return {
         cars,
         loading,
         error,
-        getAllCars,
-        getCarById,
         updateCar,
         getAvailableCarsByDate
     };

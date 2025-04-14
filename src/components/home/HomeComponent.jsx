@@ -7,7 +7,6 @@ import { useUser } from '../../hooks/useUser';
 import { Table } from '../table/table';
 import Navbar from '../navbar/Navbar';
 import { processRequests } from '../../utils/processRequests';
-
 import {
     getButtonConfigsAdmin,
     getButtonConfigsUser,
@@ -63,7 +62,6 @@ const HomeComponent = () => {
 
         if (!isAuthLoading) {
             if (!user) {
-                console.log("User is null: ", user);
                 navigate('/login');
             } else {
                 loadData();
@@ -89,12 +87,19 @@ const HomeComponent = () => {
         if (path) navigate(path);
     }, [navigate]);
 
+
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        return new Date(date).toLocaleDateString('it-IT');
+    };
+
     const currentButtonConfigs = user?.role === 'ROLE_ADMIN' ? buttonConfigsAdmin : buttonConfigsUser;
     const currentTableConfig = user?.role === 'ROLE_CUSTOMER' ? tableCustomerConfig : tableAdminConfig;
 
     const tableData = useMemo(() => {
         const processed = processRequests(requests, users, cars);
-        console.table(processed);  
+        console.table(processed);
         return processed.map(request => ({
             ...request,
             start_reservation: formatDate(request.startReservation),
@@ -123,11 +128,6 @@ const HomeComponent = () => {
             />
         </div>
     );
-};
-
-const formatDate = (date) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('it-IT');
 };
 
 export default HomeComponent;

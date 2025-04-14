@@ -19,7 +19,6 @@ export const useCar = () => {
         setLoading(true);
         try {
             const response = await axiosIstance.get(apiUrls.allCars);
-//            console.log(response.data)
             setCars(response.data);
             return response.data;
         } catch (error) {

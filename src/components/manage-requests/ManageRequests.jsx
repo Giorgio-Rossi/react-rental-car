@@ -27,13 +27,11 @@ const ManageRequests = () => {
     }
 
     if (user && user.role !== 'ROLE_ADMIN') {
-//      console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
       return;
     }
 
     if (user?.role === 'ROLE_ADMIN' && !dataLoaded) {
-//      console.log("Caricamento dati per admin...");
       fetchAdminRequests();
       getUsers();
       getCars();
@@ -49,7 +47,6 @@ const ManageRequests = () => {
 
   
   const handleActionClick = async (action, requestData) => {
-//    console.log(`Azione: ${action}, Richiesta ID: ${requestData.id}`);
     const requestId = requestData.id;
     let newStatus = '';
 
@@ -67,7 +64,6 @@ const ManageRequests = () => {
     if (newStatus) {
       try {
         await updateRequestStatus(requestId, newStatus);
-//        console.log(`Richiesta ${requestId} aggiornata a ${newStatus}`);
         fetchAdminRequests();
       } catch (error) {
         console.error(`Errore durante l'aggiornamento dello stato a ${newStatus}:`, error);

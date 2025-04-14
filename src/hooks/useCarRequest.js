@@ -8,14 +8,11 @@ export const useCarRequest = () => {
 
   const apiUrl = 'http://localhost:8080';
 
-
-
   const fetchRequestsBase = useCallback(async (url, params = {}) => {
     setLoading(true);
     setError(null);
     try {
       const response = await axiosIstance.get(url, { params });
-//      console.log("Response data:", response.data);
       setRequests(response.data);
     } catch (err) {
       setError(err.message || 'Error fetching requests');
