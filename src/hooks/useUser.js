@@ -10,9 +10,10 @@ export const useUser = () => {
 
     const apiUrls = {
         allUsers: `${apiUrl}/users/alluser`,
-        createUser: `${apiUrl}/admin/create-user`,
-        updateUser: `${apiUrl}/admin/update-user`,
-        deleteUser: `${apiUrl}/users`
+        createUser: `${apiUrl}/admin/add-user`,
+        updateUser: `${apiUrl}/users`,
+        deleteUser: `${apiUrl}/users`,
+        userById: `${apiUrl}/users`
     };
 
     const getUsers = useCallback(async () => {
@@ -26,6 +27,20 @@ export const useUser = () => {
             setLoading(false);
         }
     }, [apiUrls.allUsers]);
+
+    const getUserByUserId = useCallback(async (id) => {
+        setLoading(true);
+        try {
+            const response = await axiosIstance.get(`${apiUrls.userById}/${id}`);
+            return response.data;
+        } catch (err) {
+            setError(err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, [apiUrls.userById]);
+
 
     const createUser = useCallback(async (user) => {
         setLoading(true);
@@ -42,7 +57,7 @@ export const useUser = () => {
     const updateUser = useCallback(async (user) => {
         setLoading(true);
         try {
-            const response = await axiosIstance.put(`${apiUrls.updateUser}/${user.id}`, user);
+            const response = await axiosIstance.patch(`${apiUrls.updateUser}/${user.id}`, user);
             setUsers(prev => prev.map(u => u.id === user.id ? response.data : u));
         } catch (error) {
             setError(error);
@@ -70,6 +85,7 @@ export const useUser = () => {
         getUsers,
         createUser,
         updateUser,
-        deleteUser
+        deleteUser,
+        getUserByUserId
     };
 };

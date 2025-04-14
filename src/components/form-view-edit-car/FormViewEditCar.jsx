@@ -9,7 +9,7 @@ const FormViewEditCar = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user: loggedInUser } = useAuth();
-  const { updateCar, getCar } = useCar();
+  const { updateCar, getCarByCarId } = useCar();
   const [carData, setCarData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +26,7 @@ const FormViewEditCar = () => {
       setLoading(true);
       setError(null);
       try {
-        const fetchedCar = await getCar(id);
+        const fetchedCar = await getCarByCarId(id);
         setCarData(fetchedCar);
       } catch (err) {
         console.error("Errore durante il caricamento dell'auto:", err);
@@ -39,7 +39,7 @@ const FormViewEditCar = () => {
     if (loggedInUser) {
       loadCarData();
     }
-  }, [loggedInUser, navigate, id, getCar]);
+  }, [loggedInUser, navigate, id, getCarByCarId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

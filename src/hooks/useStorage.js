@@ -22,7 +22,6 @@ export const useStorage = () => {
     const saveUser = (userData) => {
         sessionStorage.setItem(USER_KEY, JSON.stringify(userData));
         setUser(userData);
-//        console.log()
     };
 
     const saveToken = (newToken) => {
@@ -37,10 +36,6 @@ export const useStorage = () => {
                 role: decoded.role
             });
 
-//            console.log("ID: ", decoded.id)
-//            console.log("Username: ", decoded.id)
-//            console.log("ROle: ", decoded.id)
-
         } catch (error) {
             console.error("Token decoding failed:", error);
             clean();
@@ -50,7 +45,6 @@ export const useStorage = () => {
     const getToken = () => token;
 
     const getUser = () => {
-//        console.log("Oggetto user in memoria:", user);
         return user
     };
 

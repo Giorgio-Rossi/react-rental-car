@@ -7,7 +7,7 @@ import './form-view-edit-users.css';
 const FormViewEditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { updateUser, getUser } = useUser();
+  const { updateUser, getUserByUserId } = useUser();
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ const FormViewEditUser = () => {
       setLoading(true);
       setError(null);
       try {
-        const fetchedUser = await getUser(id);
+        const fetchedUser = await getUserByUserId(id);
         if (fetchedUser) {
           setUserData(fetchedUser);
         }
@@ -32,7 +32,7 @@ const FormViewEditUser = () => {
     };
 
     loadUserData();
-  }, [id, getUser]);
+  }, [id, getUserByUserId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

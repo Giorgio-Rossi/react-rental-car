@@ -32,6 +32,21 @@ export const useCarRequest = () => {
     );
   }, [fetchRequestsBase, apiUrl]);
 
+  const getRequest = useCallback(async (requestId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosIstance.get(`${apiUrl}/api/car-requests/${requestId}`);
+      return response.data;
+    } catch (err) {
+      setError(err.message || 'Error fetching request');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiUrl]);
+
+
   const deleteRequest = useCallback(async (requestId) => {
     setLoading(true);
     setError(null);
@@ -76,7 +91,7 @@ export const useCarRequest = () => {
       );
       return response.data;
     } catch (err) {
-      setError(err.message || 'Error updating request');
+      setError(err.message || 'Error updating requesta');
       throw err;
     } finally {
       setLoading(false);
@@ -113,6 +128,7 @@ export const useCarRequest = () => {
     createRequest,
     updateRequest,
     updateRequestStatus,
+    getRequest,
     refreshRequests: fetchAdminRequests
   };
 };

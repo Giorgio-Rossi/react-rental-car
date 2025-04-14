@@ -41,9 +41,6 @@ const Login = () => {
           role: decodedUser.role
         };
 
-//        console.log("Ruolo estratto:", userData.role);
-//        console.log("Ruolo estratto:", userData.id);
-
         saveToken(token);
         saveUser(userData);
         setIsLoginFailed(false);

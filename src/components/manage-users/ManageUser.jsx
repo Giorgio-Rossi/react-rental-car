@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table } from '../table/table';
 import { useUser } from '../../hooks/useUser';
@@ -9,28 +9,31 @@ import './manage-users.css';
 const ManageUsers = () => {
   const navigate = useNavigate();
   const { user: loggedInUser } = useAuth();
-  const { users, getUsers, deleteUser, loading, error } = useUser();
+  const { users, getUsers, deleteUser, loading, error, getUserByUserId } = useUser();
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     if (!loggedInUser || loggedInUser.role !== 'ROLE_ADMIN') {
-//      console.log("Utente non ADMIN, reindirizzamento a /home");
       navigate('/home');
       return;
     }
-
-//    console.log("Caricamento utenti per admin...");
     getUsers();
   }, [loggedInUser, navigate, getUsers]);
 
   const handleActionClick = async ({ action, row: userData }) => {
     if (action === 'Modifica') {
-      navigate(`/edit-user/${userData.id}`, { state: { userData } });
+      try {
+        const userDetails = await getUserByUserId(userData.id);
+
+        navigate(`/edit-user/${userData.id}`, { state: { userData: userDetails } });
+      } catch (err) {
+        console.error('Errore durante il recupero dell\'utente:', err);
+      }
     } else if (action === 'Elimina') {
       const confirmDelete = window.confirm(`Sei sicuro di voler eliminare l'utente ${userData.username}?`);
       if (confirmDelete) {
         try {
           await deleteUser(userData.id);
-//          console.log(`Utente con id ${userData.id} eliminato.`);
         } catch (err) {
           console.error('Errore durante l\'eliminazione dell\'utente:', err);
         }

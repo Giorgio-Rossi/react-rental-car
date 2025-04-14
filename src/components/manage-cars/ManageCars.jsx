@@ -26,12 +26,7 @@ const ManageCars = () => {
 
   const handleActionClick = async (action, data) => {
     if (action === 'Modifica') {
-      const updatedCar = { ...data, status: 'IN_MANUTENZIONE' };
-      try {
-        await updateCar(data.id, updatedCar);
-      } catch (error) {
-        console.error('Errore durante la modifica dell\'auto:', error);
-      }
+      navigate(`/edit-cars/${data.id}`, { state: { carData: data } });
     }
     if (action === 'Elimina') {
       try {

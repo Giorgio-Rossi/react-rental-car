@@ -12,7 +12,8 @@ export const useCar = () => {
         addCar: `${apiUrl}/admin/add-car`,
         allCars: `${apiUrl}/api/cars/allcars`,
         editCar: `${apiUrl}/admin/edit-car`,
-        deleteCar: `${apiUrl}/api/car-requests`
+        deleteCar: `${apiUrl}/api/car-requests`,
+        carById: `${apiUrl}/api/cars`
     };
 
     const getCars = useCallback(async () => {
@@ -29,6 +30,18 @@ export const useCar = () => {
         }
     }, [apiUrls.allCars]);
 
+    const getCarByCarId = useCallback(async (id) => {
+        setLoading(true);
+        try {
+            const response = await axiosIstance.get(`${apiUrls.carById}/${id}`);
+            return response.data;
+        } catch (err) {
+            setError(err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, [apiUrls.carById]);
 
     const createCar = useCallback(async (car) => {
         setLoading(true);
@@ -84,6 +97,7 @@ export const useCar = () => {
         createCar,
         updateCar,
         deleteCar,
-        getCars
+        getCars,
+        getCarByCarId
     };
 };

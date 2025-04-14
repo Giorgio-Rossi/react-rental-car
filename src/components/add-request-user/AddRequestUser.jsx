@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import './add-request-user.css'
 import { useCarRequest } from '../../hooks/useCarRequest';
 import { useStorage } from '../../hooks/useStorage';
+import { useManageCars } from '../../hooks/useManageCars';
 
 export default function AddRequestUser() {
   const navigate = useNavigate();
   const [availableCars, setAvailableCars] = useState([]);
-  const { createRequest, getAvailableCarsByDate } = useCarRequest();
+  const { createRequest } = useCarRequest();
+  const { getAvailableCarsByDate } = useManageCars();
   const { getUser } = useStorage();
 
   const user = getUser();

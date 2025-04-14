@@ -7,6 +7,7 @@ export const useManageCars = () => {
     const [error, setError] = useState(null);
 
     const apiUrl = 'http://localhost:8080/api/cars';
+    const apiUrlCarRequests = 'http://localhost:8080/api/car-requests';
 
     const updateCar = useCallback(async (id, updatedCar) => {
         setLoading(true);
@@ -27,14 +28,14 @@ export const useManageCars = () => {
         }
     }, [apiUrl]);
 
-    const getAvailableCarsByDate = useCallback(async (startDate, endDate) => {
+    const getAvailableCarsByDate = useCallback(async (start, end) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosIstance.get(`${apiUrl}/api/car-requests/available-cars`, {
+            const response = await axiosIstance.get(`${apiUrlCarRequests}/available-cars`, {
               params: {
-                startDate,
-                endDate
+                start,
+                end
               }
             });
             return response.data;

@@ -54,7 +54,6 @@ const HomeComponent = () => {
                 } else if (user.username) {
                     await memoizedFetchUserRequests(user.username);
                 }
-                console.log(user)
             } catch (error) {
                 console.error("Errore durante il caricamento dei dati:", error);
             }
@@ -99,7 +98,6 @@ const HomeComponent = () => {
 
     const tableData = useMemo(() => {
         const processed = processRequests(requests, users, cars);
-        console.table(processed);
         return processed.map(request => ({
             ...request,
             start_reservation: formatDate(request.startReservation),
