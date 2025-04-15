@@ -3,15 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useCar } from '../../hooks/useCar';
 import { useAuth } from '../../hooks/useAuth';
 import { Table } from '../table/table';
-import { useManageCars } from '../../hooks/useManageCars';
-
 import './manage-cars.css';
 
 const ManageCars = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { cars, getCars, deleteCar, loading, error } = useCar();
-  const { updateCar } = useManageCars();
 
   useEffect(() => {
     if (user && user.role !== 'ROLE_ADMIN') {

@@ -50,7 +50,7 @@ const AddUser = () => {
       }
     }
   };
-  
+
   return (
     <div className="add-user-container">
       <h2>Aggiungi Utente</h2>

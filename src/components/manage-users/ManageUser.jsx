@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table } from '../table/table';
 import { useUser } from '../../hooks/useUser';
 import { useAuth } from '../../hooks/useAuth';
-
 import './manage-users.css';
 
 const ManageUsers = () => {
   const navigate = useNavigate();
   const { user: loggedInUser } = useAuth();
   const { users, getUsers, deleteUser, loading, error, getUserByUserId } = useUser();
-  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     if (!loggedInUser || loggedInUser.role !== 'ROLE_ADMIN') {

@@ -102,67 +102,67 @@ const FormViewEditRequest = () => {
 
   return (
     <div>
-    <h3>{title}</h3>
-    {error && <p style={{ color: 'red' }}>{error}</p>}
+      <h3>{title}</h3>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-    <form onSubmit={(e) => e.preventDefault()}>
-      {Object.keys(requestData)
-        .filter(key => key !== 'id')
-        .map(key => {
-          if (key === 'carId' || key === 'carID') {
-            return (
-              <div key="carIdSelect">
-                <label>Seleziona Auto</label>
-                <select
-                  name="carId"
-                  value={requestData.carId || requestData.carID || ''}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="" disabled>-- Seleziona un'auto --</option>
-                  {availableCars.map(car => (
-                    <option key={car.id} value={car.id}>
-                      {car.brand} - {car.model} ({car.licensePlate})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            );
-          } else if (key === 'startReservation' || key === 'endReservation') {
-            return (
-              <div key={key}>
-                <label>{key === 'startReservation' ? 'Data Inizio' : 'Data Fine'}</label>
-                <input
-                  type="date"
-                  name={key}
-                  value={requestData[key] || ''}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            );
-          } else if (!['userId', 'userID', 'status', 'userFullName', 'carDetails'].includes(key)) {
-            return (
-              <div key={key}>
-                <label>{key}</label>
-                <input
-                  type="text"
-                  name={key}
-                  value={requestData[key] || ''}
-                  onChange={handleChange}
-                />
-              </div>
-            );
-          }
-          return null;
-        })}
-    </form>
+      <form onSubmit={(e) => e.preventDefault()}>
+        {Object.keys(requestData)
+          .filter(key => key !== 'id')
+          .map(key => {
+            if (key === 'carId' || key === 'carID') {
+              return (
+                <div key="carIdSelect">
+                  <label>Seleziona Auto</label>
+                  <select
+                    name="carId"
+                    value={requestData.carId || requestData.carID || ''}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="" disabled>-- Seleziona un'auto --</option>
+                    {availableCars.map(car => (
+                      <option key={car.id} value={car.id}>
+                        {car.brand} - {car.model} ({car.licensePlate})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            } else if (key === 'startReservation' || key === 'endReservation') {
+              return (
+                <div key={key}>
+                  <label>{key === 'startReservation' ? 'Data Inizio' : 'Data Fine'}</label>
+                  <input
+                    type="date"
+                    name={key}
+                    value={requestData[key] || ''}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              );
+            } else if (!['userId', 'userID', 'status', 'userFullName', 'carDetails'].includes(key)) {
+              return (
+                <div key={key}>
+                  <label>{key}</label>
+                  <input
+                    type="text"
+                    name={key}
+                    value={requestData[key] || ''}
+                    onChange={handleChange}
+                  />
+                </div>
+              );
+            }
+            return null;
+          })}
+      </form>
 
-    <div>
-      <Button config={{ label: 'Salva' }} onClick={handleSaveChanges} />
-      <Button config={{ label: 'Chiudi' }} onClick={handleClose} />
+      <div>
+        <Button config={{ label: 'Salva' }} onClick={handleSaveChanges} />
+        <Button config={{ label: 'Chiudi' }} onClick={handleClose} />
+      </div>
     </div>
-  </div>
   );
 };
 

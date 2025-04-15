@@ -51,7 +51,6 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login failed', err);
-      setErrorMessage(err.response?.data?.message || 'An error occurred');
       setIsLoginFailed(true);
     }
   };

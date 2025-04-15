@@ -14,7 +14,6 @@ export const useCarRequest = () => {
         base: `${apiUrl}/api/car-requests`
     }
 
-
     const createRequest = async (request) => {
         setLoading(true)
         try {
@@ -121,10 +120,6 @@ export const useCarRequest = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const canEditRequest = (row) => {
-        return row.status !== 'Annullata';
     };
 
     const getLastRequestId = async () => {

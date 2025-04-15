@@ -34,10 +34,7 @@ const HomeComponent = () => {
     const buttonConfigsAdmin = getButtonConfigsAdmin();
     const buttonConfigsUser = getButtonConfigsUser();
 
-    const memoizedGetCars = useCallback(getCars, [getCars]);
-    const memoizedGetUsers = useCallback(getUsers, [getUsers]);
-    const memoizedFetchAdminRequests = useCallback(fetchAdminRequests, [fetchAdminRequests]);
-    const memoizedFetchUserRequests = useCallback(fetchUserRequests, [fetchUserRequests]);
+
 
     useEffect(() => {
         const loadData = async () => {
@@ -45,14 +42,14 @@ const HomeComponent = () => {
                 if (!user) return;
 
                 await Promise.all([
-                    memoizedGetCars(),
-                    memoizedGetUsers()
+                    getCars(),
+                    getUsers()
                 ]);
 
                 if (user.role === 'ROLE_ADMIN') {
-                    await memoizedFetchAdminRequests();
+                    await fetchAdminRequests();
                 } else if (user.username) {
-                    await memoizedFetchUserRequests(user.username);
+                    await fetchUserRequests(user.username);
                 }
             } catch (error) {
                 console.error("Errore durante il caricamento dei dati:", error);
@@ -67,7 +64,7 @@ const HomeComponent = () => {
             }
         }
 
-    }, [user, isAuthLoading, navigate, memoizedGetCars, memoizedGetUsers, memoizedFetchAdminRequests, memoizedFetchUserRequests]);
+    }, [user, isAuthLoading, navigate, getCars, getUsers, fetchAdminRequests, fetchUserRequests]);
 
     const handleActionClick = async (action, row) => {
         if (action === 'Modifica') {

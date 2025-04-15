@@ -6,7 +6,6 @@ import { useCar } from '../../hooks/useCar';
 import { useAuth } from '../../hooks/useAuth';
 import { processRequests } from '../../utils/processRequests';
 
-
 import './manage-requests.css';
 
 const ManageRequests = () => {

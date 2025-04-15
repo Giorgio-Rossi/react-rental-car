@@ -21,7 +21,6 @@ export const getTableAdminConfig = () => ({
   }
 });
 
-
 export const getTableCustomerConfig = () => ({
   headers: [
     { key: 'id', columnName: 'Codice richiesta', type: 'Number', ordinable: true, filtrable: true },

@@ -6,16 +6,18 @@ import { useStorage } from '../hooks/useStorage';
 
 export const AuthContext = createContext();
 
+export const useAuth = () => useContext(AuthContext);
+
 export const AuthProvider = ({ children }) => {
-    const { 
-        saveToken, 
+    const {
+        saveToken,
         clean,
         isLoggedIn: storageIsLoggedIn,
         getUserType: storageGetUserType,
         getUser,
         getToken
     } = useStorage();
-    
+
     const [user, setUser] = useState(getUser);
     const [token, setToken] = useState(getToken);
     const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +27,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         setUser(getUser);
         setToken(getToken);
-    }, [getUser,getToken]);
+    }, [getUser, getToken]);
 
     useEffect(() => {
         if (getToken) {
@@ -33,13 +35,13 @@ export const AuthProvider = ({ children }) => {
         } else {
             setIsLoading(false);
         }
-    }, []);
+    }, [getToken]);
 
     const login = async (username, password) => {
         setIsLoading(true);
         try {
             const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
-            saveToken(response.data.token); 
+            saveToken(response.data.token);
             return response.data;
         } catch (error) {
             throw error;
@@ -57,7 +59,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Error during logout:', error);
         } finally {
-            clean(); 
+            clean();
             navigate('/login');
             setIsLoading(false);
         }
@@ -76,4 +78,3 @@ export const AuthProvider = ({ children }) => {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext);

@@ -42,7 +42,7 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
         }
 
         return result;
-    }, [transformedData, filters, orderBy]);
+    }, [transformedData, filters, orderBy, config.headers]);
 
     const paginatedData = useMemo(() => {
         if (!filteredData) return [];
@@ -103,7 +103,6 @@ export function Table({ config, data, onOrderChange, onFilterChange, onActionCli
     const getPageNumbers = () => {
         if (totalPages <= 1) return [];
 
-        const pages = [];
         const delta = 1;
         const left = currentPage - delta;
         const right = currentPage + delta + 1;

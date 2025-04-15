@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const axiosIstance = axios.create({ 
+const axiosIstance = axios.create({
     baseURL: 'http://localhost',
     headers: {
         'Content-Type': 'application/json'
