@@ -34,8 +34,6 @@ const HomeComponent = () => {
     const buttonConfigsAdmin = getButtonConfigsAdmin();
     const buttonConfigsUser = getButtonConfigsUser();
 
-
-
     useEffect(() => {
         const loadData = async () => {
             try {
